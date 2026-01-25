@@ -5,6 +5,9 @@ import { BudgetEntity } from '@budget/entity/budget.entity';
 
 @Entity('expenses')
 export class ExpenseEntity extends AbstractEntity {
+  @Column({ nullable: true })
+  name: string;
+
   @Column()
   description: string;
 
@@ -27,6 +30,7 @@ export class ExpenseEntity extends AbstractEntity {
   @ManyToOne(() => BudgetEntity, (budget) => budget.expenses, {
     nullable: false,
     onDelete: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'budgetId' })
   budget: BudgetEntity;

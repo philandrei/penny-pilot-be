@@ -16,6 +16,23 @@ import { ExpenseRequestDto } from '@expense/dto/requests/expense-request.dto';
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
+  @Get('')
+  @ApiParam({
+    name: 'page',
+    required: false,
+  })
+  @ApiParam({
+    name: 'size',
+    required: false,
+  })
+  getAllExpensesById(
+    @Query('budgetId') budgetId: string,
+    @Query('page') page?: number,
+    @Query('size') size?: number,
+  ) {
+    return this.expenseService.getExpensesByBudgetId(budgetId, page, size);
+  }
+
   @Post(':budgetId')
   createExpense(
     @Param('budgetId') budgetId: string,
@@ -34,18 +51,18 @@ export class ExpenseController {
     return this.expenseService.findByUuid(uuid);
   }
 
-  @Get()
-  @ApiParam({
-    name: 'page',
-    required: false,
-  })
-  @ApiParam({
-    name: 'size',
-    required: false,
-  })
-  findAllExpenses(@Query('page') page?: number, @Query('size') size?: number) {
-    return this.expenseService.getExpenses(page, size);
-  }
+  // @Get()
+  // @ApiParam({
+  //   name: 'page',
+  //   required: false,
+  // })
+  // @ApiParam({
+  //   name: 'size',
+  //   required: false,
+  // })
+  // findAllExpenses(@Query('page') page?: number, @Query('size') size?: number) {
+  //   return this.expenseService.getExpenses(page, size);
+  // }
 
   @Delete(':uuid')
   deleteExpenseById(@Param('uuid') uuid: string) {

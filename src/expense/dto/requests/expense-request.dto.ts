@@ -5,6 +5,11 @@ import moment from 'moment';
 
 export class ExpenseRequestDto {
   @ApiProperty({
+    example: 'Grab',
+  })
+  name: string;
+
+  @ApiProperty({
     example: 'test description',
   })
   description: string;
