@@ -10,6 +10,15 @@ import { BudgetRepository } from '@budget/repository/budget.repository';
 export class BudgetService {
   constructor(private readonly repository: BudgetRepository) {}
 
+  async updateAmountSpent(uuid: string): Promise<void> {
+    const total = await this.repository.sumExpensesByBudgetId(uuid);
+    const budget = await this.repository.findById(uuid);
+    if (budget) {
+      budget.amountSpent = total != null ? total : '0';
+      await this.repository.save(budget);
+    }
+  }
+
   async findEntityByUuid(uuid: string): Promise<BudgetEntity | null> {
     return await this.repository.findOneBy({ uuid });
   }

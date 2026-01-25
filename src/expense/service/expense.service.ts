@@ -27,6 +27,10 @@ export class ExpenseService {
     expense.budget = budget;
 
     const savedExpense = await this.repository.createEntity(expense);
+
+    // async call for updating the budget amountSpent
+    void (await this.budgetService.updateAmountSpent(budgetId));
+
     return ExpenseMapper.toDetailDtoFromEntity(savedExpense);
   }
 
@@ -40,6 +44,8 @@ export class ExpenseService {
       if (!data) {
         throw new NotFoundException(`Expense with UUID ${uuid} not found`);
       }
+      // async call for updating the budget amountSpent
+      void this.budgetService.updateAmountSpent(data.budget.uuid);
       return ExpenseMapper.toDetailDtoFromEntity(data);
     });
   }
@@ -66,6 +72,26 @@ export class ExpenseService {
   }
 
   async deleteExpense(uuid: string): Promise<void> {
-    await this.repository.deleteById(uuid);
+    const expense = await this.repository.findById(uuid);
+    if (expense) {
+      const budgetId = expense.budget.uuid;
+      await this.repository.deleteById(uuid);
+      void (await this.budgetService.updateAmountSpent(budgetId));
+    }
+  }
+
+  async getExpensesByBudgetId(
+    budgetId: string,
+    page?: number,
+    size?: number,
+  ): Promise<PaginatedResponseDto<ExpenseDetailDto>> {
+    return this.repository
+      .findExpensesByBudgetId(budgetId, page, size)
+      .then((result) => ({
+        ...result,
+        items: result.items.map((item) =>
+          ExpenseMapper.toDetailDtoFromEntity(item),
+        ),
+      }));
   }
 }
