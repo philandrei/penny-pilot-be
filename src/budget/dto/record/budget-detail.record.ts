@@ -1,7 +1,6 @@
 import { BudgetPeriodEnum } from '@budget/enums/budget-period.enum';
-import { AbstractBaseDto } from '@abstracts/abstract-base-dto';
 
-export class BudgetDetailDto extends AbstractBaseDto {
+export class BudgetDetailRecord {
   name!: string;
   amount!: string;
   description!: string;
@@ -12,5 +11,4 @@ export class BudgetDetailDto extends AbstractBaseDto {
   color!: string;
   icon!: string;
   alertThreshold!: string;
-  // expenses: ExpenseEntity[];
 }

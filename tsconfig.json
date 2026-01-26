@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "ignoreDeprecations": "6.0",
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -25,8 +27,9 @@
       "@abstracts/*": ["src/abstracts/*"],
       "@common/*": ["src/common/*"],
       "@utils/*": ["src/utils/*"],
+      "@prisma/*": ["src/prisma/*"],
       "@budget/*": ["src/budget/*"],
-      "@expense/*": ["src/expense/*"],
+      "@expense/*": ["src/expense/*"]
     }
   }
 }

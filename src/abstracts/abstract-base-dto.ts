@@ -1,5 +1,5 @@
 export abstract class AbstractBaseDto {
-  uuid: string;
-  createdAt: Date;
-  updatedAt: Date;
+  uuid!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

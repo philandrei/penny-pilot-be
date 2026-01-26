@@ -5,6 +5,7 @@
       "@abstracts/*": ["src/abstracts/*"],
       "@common/*": ["src/common/*"],
       "@utils/*": ["src/utils/*"],
+      "@prisma/*": ["src/prisma/*"],
       "@budget/*": ["src/budget/*"],
       "@expense/*": ["src/expense/*"]
     }

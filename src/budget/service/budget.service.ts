@@ -3,16 +3,15 @@ import { BudgetRequestDto } from '@budget/dto/requests/budget-request.dto';
 import { BudgetDetailDto } from '@budget/dto/responses/budget-detail.dto';
 import { BudgetMapper } from '@budget/budget.mapper';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
-import { BudgetEntity } from '@budget/entity/budget.entity';
-import { BudgetRepository } from '@budget/repository/budget.repository';
+import { PrismaService } from '@prisma/prisma.service';
 
 @Injectable()
 export class BudgetService {
-  constructor(private readonly repository: BudgetRepository) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async updateAmountSpent(uuid: string): Promise<void> {
-    const total = await this.repository.sumExpensesByBudgetId(uuid);
-    const budget = await this.repository.findById(uuid);
+  async updateAmountSpent(id: string): Promise<void> {
+    const total = await this.sumExpensesByBudgetId(id);
+    const budget = await this.prisma.budget.findUnique({ where: { id } });
     if (budget) {
       budget.amountSpent = total != null ? total : '0';
       await this.repository.save(budget);
@@ -61,5 +60,15 @@ export class BudgetService {
 
   async deleteBudget(uuid: string): Promise<void> {
     await this.repository.deleteById(uuid);
+  }
+
+  private async sumExpensesByBudgetId(id: string) {
+    const result = await this.prisma.expense.aggregate({
+      where: { id },
+      _sum: {
+        amount: true,
+      },
+    });
+    return result._sum.amount;
   }
 }
