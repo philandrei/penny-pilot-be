@@ -7,16 +7,18 @@ import {
   Post,
   Put,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ApiParam } from '@nestjs/swagger';
 import { ExpenseService } from '@expense/service/expense.service';
-import { ExpenseRequestDto } from '@expense/dto/requests/expense-request.dto';
+import { CreateExpenseDto } from '@expense/dto/requests/create-expense.dto';
+import type { AuthenticatedRequest } from '../auth/auth-request.interface';
 
 @Controller('expenses')
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
-  @Get('')
+  @Get()
   @ApiParam({
     name: 'page',
     required: false,
@@ -25,24 +27,37 @@ export class ExpenseController {
     name: 'size',
     required: false,
   })
-  getAllExpensesById(
-    @Query('budgetId') budgetId: string,
+  getAllExpenses(@Query('page') page?: number, @Query('size') size?: number) {
+    return this.expenseService.getExpenses(page, size);
+  }
+
+  @Get(':budgetId/budgets')
+  @ApiParam({
+    name: 'page',
+    required: false,
+  })
+  @ApiParam({
+    name: 'size',
+    required: false,
+  })
+  getAllExpensesByBudgetId(
+    @Param('budgetId') budgetId: string,
     @Query('page') page?: number,
     @Query('size') size?: number,
   ) {
     return this.expenseService.getExpensesByBudgetId(budgetId, page, size);
   }
 
-  @Post(':budgetId')
+  @Post()
   createExpense(
-    @Param('budgetId') budgetId: string,
-    @Body() req: ExpenseRequestDto,
+    @Req() req: AuthenticatedRequest,
+    @Body() data: CreateExpenseDto,
   ) {
-    return this.expenseService.createExpense(budgetId, req);
+    return this.expenseService.createExpense(req, data);
   }
 
   @Put(':uuid')
-  updateExpense(@Param('uuid') uuid: string, @Body() req: ExpenseRequestDto) {
+  updateExpense(@Param('uuid') uuid: string, @Body() req: CreateExpenseDto) {
     return this.expenseService.updateExpense(uuid, req);
   }
 

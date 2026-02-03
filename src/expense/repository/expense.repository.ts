@@ -14,12 +14,14 @@ export class ExpenseRepository extends AbstractRepository<ExpenseEntity> {
     budgetId: string,
     page = 1,
     size = 10,
+    relations?: string[],
   ): Promise<PaginatedResponseDto<ExpenseEntity>> {
     const [items, total] = await this.findAndCount({
       where: { budget: { uuid: budgetId } },
       skip: (page - 1) * size,
       take: size,
       order: { createdAt: 'desc' },
+      relations,
     });
 
     return {

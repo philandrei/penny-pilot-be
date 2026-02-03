@@ -1,4 +1,4 @@
-import { ExpenseRequestDto } from '@expense/dto/requests/expense-request.dto';
+import { CreateExpenseDto } from '@expense/dto/requests/create-expense.dto';
 import { ExpenseEntity } from '@expense/entity/expense.entity';
 import { DeepPartial } from 'typeorm';
 import { ExpenseDetailDto } from '@expense/dto/responses/expense-detail.dto';
@@ -6,15 +6,17 @@ import { ExpenseSummaryDTO } from '@expense/dto/responses/expense-summary.dto';
 
 export class ExpenseMapper {
   static toEntityFromRequest(
-    request: ExpenseRequestDto,
+    request: CreateExpenseDto,
   ): DeepPartial<ExpenseEntity> {
     return {
       name: request.name,
       description: request.description,
       date: request.date,
-      paymentMethod: request.paymentMethod,
       amount: request.amount,
       notes: request.notes,
+      budgetId: request.budgetId,
+      accountId: request.accountId,
+      categoryId: request.categoryId,
     };
   }
 
@@ -25,10 +27,28 @@ export class ExpenseMapper {
       amount: entity.amount,
       notes: entity.notes,
       date: entity.date,
-      paymentMethod: entity.paymentMethod,
       createdAt: entity.createdAt,
       description: entity.description,
       updatedAt: entity.updatedAt,
+      isDeleted: entity.isDeleted,
+      userId: entity.userId,
+      transactionId: entity.transactionId,
+      budget: entity.budget
+        ? {
+            name: entity.budget.name,
+            uuid: entity.budget.uuid,
+          }
+        : undefined,
+      account: {
+        uuid: entity.account?.uuid,
+        name: entity.account?.name,
+      },
+      category: entity.category
+        ? {
+            uuid: entity.category.uuid,
+            name: entity.category.name,
+          }
+        : undefined,
     };
   }
 
@@ -38,6 +58,7 @@ export class ExpenseMapper {
       updatedAt: entity.updatedAt,
       createdAt: entity.createdAt,
       description: entity.description,
+      isDeleted: entity.isDeleted,
     };
   }
 }

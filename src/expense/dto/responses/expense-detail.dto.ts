@@ -1,4 +1,3 @@
-import { PaymentMethodEnum } from '@expense/enums/payment-method.enum';
 import { AbstractBaseDto } from '@abstracts/abstract-base-dto';
 
 export class ExpenseDetailDto extends AbstractBaseDto {
@@ -7,5 +6,18 @@ export class ExpenseDetailDto extends AbstractBaseDto {
   amount: string;
   date: Date;
   notes: string;
-  paymentMethod: PaymentMethodEnum;
+  userId: string;
+  account: {
+    uuid: string;
+    name: string;
+  };
+  category?: {
+    uuid: string;
+    name: string;
+  };
+  budget?: {
+    uuid: string;
+    name: string;
+  };
+  transactionId: string;
 }

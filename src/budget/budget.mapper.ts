@@ -3,17 +3,18 @@ import { DeepPartial } from 'typeorm';
 import { BudgetEntity } from '@budget/entity/budget.entity';
 import { BudgetDetailDto } from '@budget/dto/responses/budget-detail.dto';
 import { BudgetSummaryDto } from '@budget/dto/responses/budget-summary.dto';
+import { BudgetPeriodEnum } from '@budget/enums/budget-period.enum';
 
 export class BudgetMapper {
   static toEntityFromRequest(req: BudgetRequestDto): DeepPartial<BudgetEntity> {
     return {
       name: req.name,
       description: req.description,
-      amount: req.amount,
+      limitAmount: req.amount,
       alertThreshold: req.alertThreshold,
       startDate: req.startDate,
       endDate: req.endDate,
-      period: req.period,
+      period: req.period ?? BudgetPeriodEnum.MONTHLY,
     };
   }
 
@@ -21,8 +22,8 @@ export class BudgetMapper {
     return {
       uuid: entity.uuid,
       name: entity.name,
-      amount: entity.amount,
-      amountSpent: entity.amountSpent,
+      amount: entity.limitAmount,
+      amountSpent: entity.spentAmount,
       description: entity.description,
       isActive: entity.isActive,
       period: entity.period,
@@ -33,6 +34,7 @@ export class BudgetMapper {
       alertThreshold: entity.alertThreshold,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      isDeleted: entity.isDeleted,
     };
   }
 
@@ -43,8 +45,9 @@ export class BudgetMapper {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       isActive: entity.isActive,
-      amount: entity.amount,
-      amountSpent: entity.amountSpent,
+      amount: entity.limitAmount,
+      amountSpent: entity.spentAmount,
+      isDeleted: entity.isDeleted,
     };
   }
 }

@@ -1,0 +1,12 @@
+export enum TransactionType {
+  CREDIT = 'CREDIT',
+  DEBIT = 'DEBIT',
+}
+
+export enum TransactionSource {
+  EXPENSE = 'EXPENSE',
+  EXPENSE_ADJUSTMENT = 'EXPENSE_ADJUSTMENT',
+  INCOME = 'INCOME',
+  INCOME_ADJUSTMENT = 'INCOME_ADJUSTMENT',
+  TRANSFER = 'TRANSFER',
+}

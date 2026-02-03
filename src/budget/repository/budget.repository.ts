@@ -20,4 +20,14 @@ export class BudgetRepository extends AbstractRepository<BudgetEntity> {
 
     return result?.totalAmount;
   }
+
+  async incrementSpentAmount(uuid: string, amount: number): Promise<void> {
+    await this.increment(
+      {
+        uuid,
+      },
+      'spentAmount',
+      amount,
+    );
+  }
 }

@@ -28,7 +28,7 @@ export class BudgetController {
 
   @Get(':uuid')
   findBudget(@Param('uuid') uuid: string) {
-    return this.budgetService.findByUuid(uuid);
+    return this.budgetService.getEntityByUuid(uuid);
   }
 
   @Get()

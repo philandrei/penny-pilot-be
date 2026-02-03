@@ -1,25 +1,38 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { BudgetRequestDto } from '@budget/dto/requests/budget-request.dto';
 import { BudgetDetailDto } from '@budget/dto/responses/budget-detail.dto';
 import { BudgetMapper } from '@budget/budget.mapper';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { BudgetEntity } from '@budget/entity/budget.entity';
 import { BudgetRepository } from '@budget/repository/budget.repository';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class BudgetService {
   constructor(private readonly repository: BudgetRepository) {}
 
-  async updateAmountSpent(uuid: string): Promise<void> {
-    const total = await this.repository.sumExpensesByBudgetId(uuid);
-    const budget = await this.repository.findById(uuid);
-    if (budget) {
-      budget.amountSpent = total != null ? total : '0';
-      await this.repository.save(budget);
+  async validateBudgetId(uuid: string): Promise<void> {
+    if (!isUUID(uuid)) {
+      throw new BadRequestException('Invalid budgetId');
+    }
+
+    // 2. Existence
+    const budget = await this.repository.findOneBy({ uuid: uuid });
+    if (!budget) {
+      throw new NotFoundException('Budget not found');
     }
   }
 
-  async findEntityByUuid(uuid: string): Promise<BudgetEntity | null> {
+  async updateAmountSpent(uuid: string, amount: number): Promise<void> {
+    await this.validateBudgetId(uuid);
+    await this.repository.incrementSpentAmount(uuid, amount);
+  }
+
+  async getEntityByUuid(uuid: string): Promise<BudgetEntity | null> {
     return await this.repository.findOneBy({ uuid });
   }
 

@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
@@ -17,4 +18,7 @@ export abstract class AbstractEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date;
+
+  @Column({ name: 'is_deleted', default: false })
+  isDeleted: boolean;
 }

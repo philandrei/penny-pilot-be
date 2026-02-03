@@ -8,11 +8,14 @@ export class BudgetEntity extends AbstractEntity {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  userId: string;
+
   @Column('decimal', { precision: 10, scale: 2 })
-  amount: string;
+  limitAmount: string;
 
   @Column('decimal', { precision: 10, scale: 2, nullable: true, default: '0' })
-  amountSpent: string;
+  spentAmount: string;
 
   @Column({ nullable: true })
   description: string;

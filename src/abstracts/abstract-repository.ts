@@ -38,11 +38,16 @@ export abstract class AbstractRepository<
     await this.delete({ uuid } as FindOptionsWhere<T>);
   }
 
-  async findAll(page = 1, size = 10): Promise<PaginatedResponseDto<T>> {
+  async findAll(
+    page = 1,
+    size = 10,
+    relations?: string[],
+  ): Promise<PaginatedResponseDto<T>> {
     const [items, total] = await this.findAndCount({
       skip: (page - 1) * size,
       take: size,
       order: { createdAt: 'DESC' } as FindOptionsOrder<T>,
+      relations,
     });
 
     return {
