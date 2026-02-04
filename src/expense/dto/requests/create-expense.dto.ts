@@ -27,12 +27,6 @@ export class CreateExpenseDto {
   date: string;
 
   @ApiProperty({
-    example: 'sample notes',
-  })
-  @IsString()
-  notes: string;
-
-  @ApiProperty({
     example: null,
   })
   @IsUUID()

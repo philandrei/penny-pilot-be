@@ -5,7 +5,6 @@ export class ExpenseDetailDto extends AbstractBaseDto {
   description: string;
   amount: string;
   date: Date;
-  notes: string;
   userId: string;
   account: {
     uuid: string;

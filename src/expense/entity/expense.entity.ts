@@ -22,9 +22,6 @@ export class ExpenseEntity extends AbstractEntity {
   @Column({ type: 'date' })
   date: Date;
 
-  @Column({ nullable: true })
-  notes: string;
-
   @Column({ type: 'uuid', nullable: true })
   categoryId?: string;
 
