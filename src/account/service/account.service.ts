@@ -19,13 +19,14 @@ export class AccountService {
   constructor(private readonly repository: AccountRepository) {}
 
   async updateBalance(
-    uuid: string,
+    accountId: string,
     amount: string,
     direction: TransactionType,
-  ): Promise<void> {
+  ): Promise<AccountDetailsDto> {
     const delta =
       direction == TransactionType.CREDIT ? Number(amount) : -Number(amount);
-    await this.repository.incrementAccountBalance(uuid, delta);
+    await this.repository.incrementAccountBalance(accountId, delta);
+    return await this.getAccountById(accountId);
   }
 
   async validateAccountId(uuid: string): Promise<void> {

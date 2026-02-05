@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { TransactionRepository } from '../repository/transaction.repository';
 import { CreateTransactionDto } from '@transaction/dtos/request/create-transaction.dto';
 import { TransactionDetailsDto } from '@transaction/dtos/response/transaction-details.dto';
@@ -30,15 +30,26 @@ export class TransactionService {
     data: CreateTransactionDto,
     transactionType: TransactionType,
   ): Promise<TransactionDetailsDto> {
+    const account = await this.accountService.getAccountById(data.accountId);
+
+    if (!account) {
+      throw new NotFoundException(`Account does not exist: ${data.accountId}`);
+    }
     const transaction = TransactionMapper.toEntityFromRequest(data);
     transaction.type = transactionType;
+    transaction.oldBalance = account.balance;
+
     const savedTransaction = await this.repository.createEntity(transaction);
 
-    void (await this.accountService.updateBalance(
+    const updatedAccount = await this.accountService.updateBalance(
       savedTransaction.accountId,
       savedTransaction.amount,
       transactionType,
-    ));
+    );
+
+    await this.repository.updateById(savedTransaction.uuid, {
+      newBalance: updatedAccount.balance,
+    });
 
     return TransactionMapper.toDetailFromEntity(savedTransaction);
   }

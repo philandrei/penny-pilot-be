@@ -11,6 +11,12 @@ export class TransactionEntity extends AbstractEntity {
   @Column({ type: 'enum', enum: TransactionType })
   type: TransactionType;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2})
+  oldBalance: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2})
+  newBalance: string;
+
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: string;
 
