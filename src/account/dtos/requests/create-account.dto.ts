@@ -1,5 +1,12 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { AccountType } from '@account/enum/account.enum';
 
 export class CreateAccountDto {
   @ApiProperty({
@@ -19,4 +26,11 @@ export class CreateAccountDto {
   @IsBoolean()
   @IsOptional()
   isDefault?: boolean;
+
+  @ApiProperty({
+    example: AccountType.DEBIT_CARD,
+  })
+  @IsNotEmpty()
+  @IsEnum(AccountType)
+  accountType: AccountType;
 }

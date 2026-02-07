@@ -12,20 +12,72 @@ import { AccountEntity } from '@account/entity/account.entity';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { AuthenticatedRequest } from '../../auth/auth-request.interface';
 import { isUUID } from 'class-validator';
-import { TransactionType } from '@transaction/enums/transaction.enum';
+import { TransactionSource } from '@transaction/enums/transaction.enum';
+import { AccountType } from '@account/enum/account.enum';
+import { TransactionService } from '@transaction/service/transaction.service';
+import { AccountDepositDto } from '@account/dtos/requests/account-deposit.dto';
+import { CreateTransactionDto } from '@transaction/dto/request/create-transaction.dto';
 
 @Injectable()
 export class AccountService {
-  constructor(private readonly repository: AccountRepository) {}
+  constructor(
+    private readonly repository: AccountRepository,
+    private readonly transactionService: TransactionService,
+  ) {}
 
-  async updateBalance(
+  async findByName(name: string): Promise<AccountEntity | null> {
+    return await this.repository.findOne({
+      where: { name },
+    });
+  }
+
+  async accountDeposit(
+    auth: AuthenticatedRequest,
     accountId: string,
-    amount: string,
-    direction: TransactionType,
+    data: AccountDepositDto,
   ): Promise<AccountDetailsDto> {
-    const delta =
-      direction == TransactionType.CREDIT ? Number(amount) : -Number(amount);
-    await this.repository.incrementAccountBalance(accountId, delta);
+    const account = await this.getAccountById(accountId);
+    if (account.accountType === AccountType.CREDIT_CARD) {
+      throw new BadRequestException(
+        'Deposits are not allowed for credit card accounts',
+      );
+    }
+
+    const tx: CreateTransactionDto = {
+      amount: data.amount,
+      accountId,
+      userId: auth.user.uuid,
+      sourceId: accountId,
+      source: TransactionSource.DEPOSIT,
+      description: data.description,
+    };
+
+    await this.transactionService.createCreditTransaction(tx);
+
+    return this.getAccountById(accountId);
+  }
+
+  async clearCreditCardBalance(
+    auth: AuthenticatedRequest,
+    accountId: string,
+  ): Promise<AccountDetailsDto> {
+    const account = await this.getAccountById(accountId);
+
+    if (account.accountType !== AccountType.CREDIT_CARD) {
+      throw new BadRequestException('Account is not a credit card');
+    }
+
+    const tx: CreateTransactionDto = {
+      amount: account.balance,
+      accountId,
+      userId: auth.user.uuid,
+      sourceId: accountId,
+      source: TransactionSource.CREDIT_RESET,
+      description: 'Credit card statement paid',
+    };
+
+    await this.transactionService.createDebitTransaction(tx);
+
     return await this.getAccountById(accountId);
   }
 
@@ -49,8 +101,17 @@ export class AccountService {
     auth: AuthenticatedRequest,
     request: CreateAccountDto,
   ): Promise<AccountDetailsDto> {
+    await this.findByName(request.name).then((data) => {
+      if (data) throw new BadRequestException('Account name already exists');
+    });
+
     const entity = AccountMapper.toEntityFromCreateDto(request);
     entity.userId = auth.user.uuid;
+
+    if (request.accountType === AccountType.CREDIT_CARD) {
+      entity.balance = '0';
+    }
+
     return await this.repository
       .createEntity(entity)
       .then((data) => AccountMapper.toDetailFromEntity(data));

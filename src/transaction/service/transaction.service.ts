@@ -1,17 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TransactionRepository } from '../repository/transaction.repository';
-import { CreateTransactionDto } from '@transaction/dtos/request/create-transaction.dto';
-import { TransactionDetailsDto } from '@transaction/dtos/response/transaction-details.dto';
+import { CreateTransactionDto } from '@transaction/dto/request/create-transaction.dto';
+import { TransactionDetailsDto } from '@transaction/dto/response/transaction-details.dto';
 import { TransactionMapper } from '@transaction/transaction.mapper';
 import { TransactionType } from '@transaction/enums/transaction.enum';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
-import { AccountService } from '@account/service/account.service';
+import { AccountRepository } from '@account/repository/account.repository';
+import { AccountEntity } from '@account/entity/account.entity';
 
 @Injectable()
 export class TransactionService {
   constructor(
     private readonly repository: TransactionRepository,
-    private readonly accountService: AccountService,
+    private readonly accountRepository: AccountRepository,
   ) {}
 
   async createCreditTransaction(
@@ -26,11 +27,31 @@ export class TransactionService {
     return await this.createTransaction(data, TransactionType.DEBIT);
   }
 
+  private async getAccountById(uuid: string): Promise<AccountEntity> {
+    return await this.accountRepository.findById(uuid).then((data) => {
+      if (!data) {
+        throw new NotFoundException(`Account with UUID ${uuid} not found`);
+      }
+      return data;
+    });
+  }
+
+  private async updateAccountBalance(
+    accountId: string,
+    amount: string,
+    direction: TransactionType,
+  ): Promise<AccountEntity> {
+    const delta =
+      direction == TransactionType.CREDIT ? Number(amount) : -Number(amount);
+    await this.accountRepository.incrementAccountBalance(accountId, delta);
+    return await this.getAccountById(accountId);
+  }
+
   private async createTransaction(
     data: CreateTransactionDto,
     transactionType: TransactionType,
   ): Promise<TransactionDetailsDto> {
-    const account = await this.accountService.getAccountById(data.accountId);
+    const account = await this.getAccountById(data.accountId);
 
     if (!account) {
       throw new NotFoundException(`Account does not exist: ${data.accountId}`);
@@ -41,7 +62,7 @@ export class TransactionService {
 
     const savedTransaction = await this.repository.createEntity(transaction);
 
-    const updatedAccount = await this.accountService.updateBalance(
+    const updatedAccount = await this.updateAccountBalance(
       savedTransaction.accountId,
       savedTransaction.amount,
       transactionType,

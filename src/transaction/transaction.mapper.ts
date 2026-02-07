@@ -1,6 +1,6 @@
-import { CreateTransactionDto } from '@transaction/dtos/request/create-transaction.dto';
+import { CreateTransactionDto } from '@transaction/dto/request/create-transaction.dto';
 import { TransactionEntity } from '@transaction/entity/transaction.entity';
-import { TransactionDetailsDto } from '@transaction/dtos/response/transaction-details.dto';
+import { TransactionDetailsDto } from '@transaction/dto/response/transaction-details.dto';
 
 export class TransactionMapper {
   static toEntityFromRequest(

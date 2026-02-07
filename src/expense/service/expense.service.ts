@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ExpenseRepository } from '@expense/repository/expense.repository';
 import { CreateExpenseDto } from '@expense/dto/requests/create-expense.dto';
 import { ExpenseDetailDto } from '@expense/dto/responses/expense-detail.dto';
@@ -10,6 +14,10 @@ import { AccountService } from '@account/service/account.service';
 import { TransactionService } from '@transaction/service/transaction.service';
 import { CategoryService } from '@category/service/category.service';
 import { TransactionSource } from '@transaction/enums/transaction.enum';
+import { ExpenseEntity } from '@expense/entity/expense.entity';
+import { TransactionDetailsDto } from '@transaction/dto/response/transaction-details.dto';
+import { AccountType } from '@account/enum/account.enum';
+import { CreateTransactionDto } from '@transaction/dto/request/create-transaction.dto';
 
 @Injectable()
 export class ExpenseService {
@@ -21,14 +29,38 @@ export class ExpenseService {
     private readonly categoryService: CategoryService,
   ) {}
 
+  private async createTransaction(
+    savedExpense: ExpenseEntity,
+    accountType: AccountType,
+  ): Promise<TransactionDetailsDto> {
+    const tx: CreateTransactionDto = {
+      amount: savedExpense.amount,
+      description: savedExpense.description,
+      accountId: savedExpense.accountId,
+      userId: savedExpense.userId,
+      source: TransactionSource.EXPENSE,
+      sourceId: savedExpense.uuid,
+    };
+
+    if (accountType === AccountType.CREDIT_CARD) {
+      return await this.transactionService.createCreditTransaction(tx);
+    }
+    return await this.transactionService.createDebitTransaction(tx);
+  }
+
   async createExpense(
     auth: AuthenticatedRequest,
     request: CreateExpenseDto,
   ): Promise<ExpenseDetailDto> {
     //validations
-    await this.accountService.validateAccountId(request.accountId);
+    const account = await this.accountService.getAccountById(request.accountId);
+    if (!account) {
+      throw new BadRequestException('Account does not exist');
+    }
+
     if (request.categoryId)
       await this.categoryService.validateCategoryId(request.categoryId);
+
     const budgetId = request.budgetId;
     if (budgetId) await this.budgetService.validateBudgetId(budgetId);
 
@@ -36,17 +68,9 @@ export class ExpenseService {
     expense.userId = auth.user.uuid;
 
     const savedExpense = await this.repository.createEntity(expense);
-
-    const tx = await this.transactionService.createDebitTransaction({
-      amount: savedExpense.amount,
-      description: savedExpense.description,
-      accountId: savedExpense.accountId,
-      userId: savedExpense.userId,
-      source: TransactionSource.EXPENSE,
-      sourceId: savedExpense.uuid,
-    });
-
+    const tx = await this.createTransaction(savedExpense, account.accountType);
     savedExpense.transactionId = tx.uuid;
+
     void (await this.repository.updateById(savedExpense.uuid, savedExpense));
 
     // async call for updating the budget amountSpent

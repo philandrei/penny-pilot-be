@@ -9,6 +9,7 @@ export class AccountMapper {
       name: req.name,
       balance: req.balance,
       isDefault: req.isDefault,
+      type: req.accountType,
     };
   }
 
@@ -28,6 +29,7 @@ export class AccountMapper {
       createdAt: entity.createdAt,
       isDeleted: entity.isDeleted,
       isDefault: entity.isDefault,
+      accountType: entity.type,
     };
   }
 }

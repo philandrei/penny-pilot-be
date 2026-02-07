@@ -1,5 +1,6 @@
 import { AbstractEntity } from '@abstracts/abstract-entity';
 import { Column, Entity } from 'typeorm';
+import { AccountType } from '@account/enum/account.enum';
 
 @Entity('accounts')
 export class AccountEntity extends AbstractEntity {
@@ -14,4 +15,7 @@ export class AccountEntity extends AbstractEntity {
 
   @Column({ default: false })
   isDefault: boolean;
+
+  @Column({ type: 'enum', enum: AccountType, nullable: true })
+  type: AccountType;
 }

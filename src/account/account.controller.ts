@@ -14,10 +14,28 @@ import { ApiParam } from '@nestjs/swagger';
 import { CreateAccountDto } from '@account/dtos/requests/create-account.dto';
 import { UpdateAccountDTO } from '@account/dtos/requests/update-account.dto';
 import type { AuthenticatedRequest } from '../auth/auth-request.interface';
+import { AccountDepositDto } from '@account/dtos/requests/account-deposit.dto';
 
 @Controller('accounts')
 export class AccountController {
   constructor(private readonly service: AccountService) {}
+
+  @Post(':uuid/deposit')
+  accountDeposit(
+    @Req() req: AuthenticatedRequest,
+    @Param('uuid') uuid: string,
+    @Body() data: AccountDepositDto,
+  ) {
+    return this.service.accountDeposit(req, uuid, data);
+  }
+
+  @Post(':uuid/credit/clear')
+  clearCreditBalance(
+    @Req() req: AuthenticatedRequest,
+    @Param('uuid') uuid: string,
+  ) {
+    return this.service.clearCreditCardBalance(req, uuid);
+  }
 
   @Post()
   createAccount(
