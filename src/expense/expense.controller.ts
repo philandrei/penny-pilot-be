@@ -27,8 +27,12 @@ export class ExpenseController {
     name: 'size',
     required: false,
   })
-  getAllExpenses(@Query('page') page?: number, @Query('size') size?: number) {
-    return this.expenseService.getExpenses(page, size);
+  getAllExpenses(
+    @Req() req: AuthenticatedRequest,
+    @Query('page') page?: number,
+    @Query('size') size?: number,
+  ) {
+    return this.expenseService.getExpenses(req.user.uuid, page, size);
   }
 
   @Get(':budgetId/budgets')

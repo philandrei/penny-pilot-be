@@ -66,15 +66,18 @@ export class CategoryService {
   }
 
   async getCategories(
+    userId: string,
     page?: number,
     size?: number,
   ): Promise<PaginatedResponseDto<CategoryDetailsDto>> {
-    return this.repository.findAll(page, size).then((result) => ({
-      ...result,
-      items: result.items.map((item) =>
-        CategoryMapper.toDetailFromEntity(item),
-      ),
-    }));
+    return this.repository
+      .findAll(page, size, undefined, { userId })
+      .then((result) => ({
+        ...result,
+        items: result.items.map((item) =>
+          CategoryMapper.toDetailFromEntity(item),
+        ),
+      }));
   }
 
   async deleteCategory(uuid: string): Promise<void> {

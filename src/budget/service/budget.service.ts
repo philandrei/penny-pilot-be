@@ -36,8 +36,12 @@ export class BudgetService {
     return await this.repository.findOneBy({ uuid });
   }
 
-  async create(req: BudgetRequestDto): Promise<BudgetDetailDto> {
+  async create(
+    userId: string,
+    req: BudgetRequestDto,
+  ): Promise<BudgetDetailDto> {
     const budget = BudgetMapper.toEntityFromRequest(req);
+    budget.userId = userId;
     const savedBudget = await this.repository.createEntity(budget);
     return BudgetMapper.toDetailFromEntity(savedBudget);
   }
@@ -63,13 +67,18 @@ export class BudgetService {
   }
 
   async getBudgets(
+    userId: string,
     page?: number,
     size?: number,
   ): Promise<PaginatedResponseDto<BudgetDetailDto>> {
-    return this.repository.findAll(page, size).then((result) => ({
-      ...result,
-      items: result.items.map((item) => BudgetMapper.toDetailFromEntity(item)),
-    }));
+    return this.repository
+      .findAll(page, size, undefined, { userId })
+      .then((result) => ({
+        ...result,
+        items: result.items.map((item) =>
+          BudgetMapper.toDetailFromEntity(item),
+        ),
+      }));
   }
 
   async deleteBudget(uuid: string): Promise<void> {

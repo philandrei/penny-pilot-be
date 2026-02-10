@@ -46,10 +46,11 @@ export class CategoryController {
     required: false,
   })
   findAllCategories(
+    @Req() req: AuthenticatedRequest,
     @Query('page') page?: number,
     @Query('size') size?: number,
   ) {
-    return this.service.getCategories(page, size);
+    return this.service.getCategories(req.user.uuid, page, size);
   }
 
   @Delete(':uuid')

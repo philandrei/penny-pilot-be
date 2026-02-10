@@ -139,11 +139,12 @@ export class ExpenseService {
   }
 
   async getExpenses(
+    userId: string,
     page?: number,
     size?: number,
   ): Promise<PaginatedResponseDto<ExpenseDetailDto>> {
     return this.repository
-      .findAll(page, size, ['category', 'account', 'budget'])
+      .findAll(page, size, ['category', 'account', 'budget'], { userId })
       .then((result) => ({
         ...result,
         items: result.items.map((item) =>

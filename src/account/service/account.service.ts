@@ -140,13 +140,18 @@ export class AccountService {
   }
 
   async getAccounts(
+    userId: string,
     page?: number,
     size?: number,
   ): Promise<PaginatedResponseDto<AccountDetailsDto>> {
-    return this.repository.findAll(page, size).then((result) => ({
-      ...result,
-      items: result.items.map((item) => AccountMapper.toDetailFromEntity(item)),
-    }));
+    return this.repository
+      .findAll(page, size, undefined, { userId })
+      .then((result) => ({
+        ...result,
+        items: result.items.map((item) =>
+          AccountMapper.toDetailFromEntity(item),
+        ),
+      }));
   }
 
   async deleteAccount(uuid: string): Promise<void> {

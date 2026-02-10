@@ -64,8 +64,12 @@ export class AccountController {
     name: 'size',
     required: false,
   })
-  findAllAccounts(@Query('page') page?: number, @Query('size') size?: number) {
-    return this.service.getAccounts(page, size);
+  findAllAccounts(
+    @Req() req: AuthenticatedRequest,
+    @Query('page') page?: number,
+    @Query('size') size?: number,
+  ) {
+    return this.service.getAccounts(req.user.uuid, page, size);
   }
 
   @Delete(':uuid')

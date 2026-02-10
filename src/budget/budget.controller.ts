@@ -7,18 +7,23 @@ import {
   Post,
   Put,
   Query,
+  Req,
 } from '@nestjs/common';
 import { BudgetService } from '@budget/service/budget.service';
 import { BudgetRequestDto } from '@budget/dto/requests/budget-request.dto';
 import { ApiParam } from '@nestjs/swagger';
+import type { AuthenticatedRequest } from '../auth/auth-request.interface';
 
 @Controller('budgets')
 export class BudgetController {
   constructor(private readonly budgetService: BudgetService) {}
 
   @Post()
-  createBudget(@Body() req: BudgetRequestDto) {
-    return this.budgetService.create(req);
+  createBudget(
+    @Req() req: AuthenticatedRequest,
+    @Body() data: BudgetRequestDto,
+  ) {
+    return this.budgetService.create(req.user.uuid, data);
   }
 
   @Put(':uuid')
@@ -40,8 +45,12 @@ export class BudgetController {
     name: 'size',
     required: false,
   })
-  findAllBudgets(@Query('page') page?: number, @Query('size') size?: number) {
-    return this.budgetService.getBudgets(page, size);
+  findAllBudgets(
+    @Req() req: AuthenticatedRequest,
+    @Query('page') page?: number,
+    @Query('size') size?: number,
+  ) {
+    return this.budgetService.getBudgets(req.user.uuid, page, size);
   }
 
   @Delete(':uuid')
