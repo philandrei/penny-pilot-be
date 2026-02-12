@@ -16,9 +16,6 @@ export class UpdateAccountDTO {
   @IsString()
   name: string;
 
-  @IsString()
-  balance: string;
-
   @ApiProperty({
     example: true,
   })

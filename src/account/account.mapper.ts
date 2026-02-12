@@ -16,6 +16,7 @@ export class AccountMapper {
   static toEntityFromUpdateDto(req: UpdateAccountDTO): Partial<AccountEntity> {
     return {
       name: req.name,
+      type: req.accountType,
       isDefault: req.isDefault,
     };
   }
