@@ -11,4 +11,5 @@ export enum TransactionSource {
   TRANSFER = 'TRANSFER',
   CREDIT_RESET = 'CREDIT_RESET',
   DEPOSIT = 'DEPOSIT',
+  RECEIVE = 'RECEIVE',
 }

@@ -15,6 +15,20 @@ export class TransactionService {
     private readonly accountRepository: AccountRepository,
   ) {}
 
+  async findAllByAccountId(
+    accountId: string,
+    page?: number,
+    size?: number,
+  ): Promise<TransactionDetailsDto[]> {
+    return await this.repository
+      .findAll(page, size, undefined, { accountId })
+      .then((data) => {
+        const items = data.items;
+
+        return items.map((item) => TransactionMapper.toDetailFromEntity(item));
+      });
+  }
+
   async createCreditTransaction(
     data: CreateTransactionDto,
   ): Promise<TransactionDetailsDto> {
@@ -25,26 +39,6 @@ export class TransactionService {
     data: CreateTransactionDto,
   ): Promise<TransactionDetailsDto> {
     return await this.createTransaction(data, TransactionType.DEBIT);
-  }
-
-  private async getAccountById(uuid: string): Promise<AccountEntity> {
-    return await this.accountRepository.findById(uuid).then((data) => {
-      if (!data) {
-        throw new NotFoundException(`Account with UUID ${uuid} not found`);
-      }
-      return data;
-    });
-  }
-
-  private async updateAccountBalance(
-    accountId: string,
-    amount: string,
-    direction: TransactionType,
-  ): Promise<AccountEntity> {
-    const delta =
-      direction == TransactionType.CREDIT ? Number(amount) : -Number(amount);
-    await this.accountRepository.incrementAccountBalance(accountId, delta);
-    return await this.getAccountById(accountId);
   }
 
   private async createTransaction(
@@ -73,6 +67,26 @@ export class TransactionService {
     });
 
     return TransactionMapper.toDetailFromEntity(savedTransaction);
+  }
+
+  private async getAccountById(uuid: string): Promise<AccountEntity> {
+    return await this.accountRepository.findById(uuid).then((data) => {
+      if (!data) {
+        throw new NotFoundException(`Account with UUID ${uuid} not found`);
+      }
+      return data;
+    });
+  }
+
+  private async updateAccountBalance(
+    accountId: string,
+    amount: string,
+    direction: TransactionType,
+  ): Promise<AccountEntity> {
+    const delta =
+      direction == TransactionType.CREDIT ? Number(amount) : -Number(amount);
+    await this.accountRepository.incrementAccountBalance(accountId, delta);
+    return await this.getAccountById(accountId);
   }
 
   async getTransactionsByAccountId(

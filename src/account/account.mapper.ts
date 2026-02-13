@@ -31,6 +31,7 @@ export class AccountMapper {
       isDeleted: entity.isDeleted,
       isDefault: entity.isDefault,
       accountType: entity.type,
+      transactions: undefined,
     };
   }
 }

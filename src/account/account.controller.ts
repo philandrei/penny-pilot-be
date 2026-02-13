@@ -15,10 +15,25 @@ import { CreateAccountDto } from '@account/dtos/requests/create-account.dto';
 import { UpdateAccountDTO } from '@account/dtos/requests/update-account.dto';
 import type { AuthenticatedRequest } from '../auth/auth-request.interface';
 import { AccountDepositDto } from '@account/dtos/requests/account-deposit.dto';
+import { TransferAmountDto } from '@account/dtos/requests/transfer-amount.dto';
 
 @Controller('accounts')
 export class AccountController {
   constructor(private readonly service: AccountService) {}
+
+  @Get(':uuid/transactions')
+  getAllTransactions(@Param('uuid') uuid: string) {
+    return this.service.getAccountTransactions(uuid);
+  }
+
+  @Post(':uuid/transfer')
+  transferAmount(
+    @Req() req: AuthenticatedRequest,
+    @Param('uuid') uuid: string,
+    @Body() data: TransferAmountDto,
+  ) {
+    return this.service.transferAmount(req.user.uuid, uuid, data);
+  }
 
   @Post(':uuid/deposit')
   accountDeposit(

@@ -17,6 +17,7 @@ import { AccountType } from '@account/enum/account.enum';
 import { TransactionService } from '@transaction/service/transaction.service';
 import { AccountDepositDto } from '@account/dtos/requests/account-deposit.dto';
 import { CreateTransactionDto } from '@transaction/dto/request/create-transaction.dto';
+import { TransferAmountDto } from '@account/dtos/requests/transfer-amount.dto';
 
 @Injectable()
 export class AccountService {
@@ -24,6 +25,87 @@ export class AccountService {
     private readonly repository: AccountRepository,
     private readonly transactionService: TransactionService,
   ) {}
+
+  async getAccountTransactions(
+    accountId: string,
+    page?: number,
+    size?: number,
+  ): Promise<AccountDetailsDto> {
+    const account = await this.getAccountById(accountId);
+
+    if (!account) {
+      throw new NotFoundException('Account does not exist');
+    }
+
+    account.transactions = await this.transactionService.findAllByAccountId(
+      accountId,
+      page,
+      size,
+    );
+
+    return account;
+  }
+
+  async transferAmount(
+    userId: string,
+    accountId: string,
+    data: TransferAmountDto,
+  ): Promise<AccountDetailsDto> {
+    const sourceAccount: AccountEntity = await this.getAccountEntityById(
+      accountId,
+    ).then((data) => {
+      if (!data) {
+        throw new NotFoundException('Account ID does not exist');
+      }
+
+      if (data.type === AccountType.CREDIT_CARD) {
+        throw new BadRequestException(
+          'Credit card should not transfer amount.',
+        );
+      }
+      return data;
+    });
+
+    const destinationAccount: AccountEntity = await this.getAccountEntityById(
+      data.destinationAccountId,
+    ).then((data) => {
+      if (!data) {
+        throw new NotFoundException("Destination account doesn't exist");
+      }
+      if (data.type === AccountType.CREDIT_CARD) {
+        throw new BadRequestException(
+          'Destination account should not be a Credit card',
+        );
+      }
+      return data;
+    });
+
+    //debit first to the sourceAccount
+    const debitTx: CreateTransactionDto = {
+      amount: data.amount,
+      accountId: sourceAccount.uuid,
+      userId,
+      sourceId: sourceAccount.uuid,
+      source: TransactionSource.TRANSFER,
+      description: 'Transfer amount to ' + destinationAccount.uuid,
+    };
+
+    await this.transactionService.createDebitTransaction(debitTx);
+
+    //credit the amount to destination account
+    const creditTx: CreateTransactionDto = {
+      amount: data.amount,
+      accountId: destinationAccount.uuid,
+      userId,
+      sourceId: sourceAccount.uuid,
+      source: TransactionSource.RECEIVE,
+      description: 'Receive amount from ' + sourceAccount.uuid,
+    };
+
+    await this.transactionService.createCreditTransaction(creditTx);
+
+    return await this.getAccountById(sourceAccount.uuid);
+  }
 
   async findByName(name: string): Promise<AccountEntity | null> {
     return await this.repository.findOne({
