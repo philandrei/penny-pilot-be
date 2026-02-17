@@ -23,7 +23,7 @@ export class BudgetController {
     @Req() req: AuthenticatedRequest,
     @Body() data: BudgetRequestDto,
   ) {
-    return this.budgetService.create(req.user.uuid, data);
+    return this.budgetService.create(req.user.userId, data);
   }
 
   @Put(':uuid')
@@ -50,7 +50,7 @@ export class BudgetController {
     @Query('page') page?: number,
     @Query('size') size?: number,
   ) {
-    return this.budgetService.getBudgets(req.user.uuid, page, size);
+    return this.budgetService.getBudgets(req.user.userId, page, size);
   }
 
   @Delete(':uuid')

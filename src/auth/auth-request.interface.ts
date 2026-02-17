@@ -1,9 +1,8 @@
-export interface AuthUser {
-  uuid: string;
-  firebaseUid?: string;
-  email?: string;
-}
+import { Request } from 'express';
 
 export interface AuthenticatedRequest extends Request {
-  user: AuthUser;
+  user: {
+    userId: string;
+    refreshToken: string;
+  };
 }

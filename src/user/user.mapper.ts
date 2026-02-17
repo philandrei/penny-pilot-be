@@ -1,5 +1,5 @@
-import { CreateUserDto } from '@user/dtos/requests/create-user.dto';
-import { UserDetailsDto } from '@user/dtos/response/user-details.dto';
+import { CreateUserDto } from '@user/dto/requests/create-user.dto';
+import { UserDetailsDto } from '@user/dto/response/user-details.dto';
 import { UserEntity } from '@user/entity/user.entity';
 
 export class UserMapper {
@@ -18,7 +18,6 @@ export class UserMapper {
       createdAt: entity.createdAt,
       isDeleted: entity.isDeleted,
       updatedAt: entity.updatedAt,
-      currency: entity.currency,
       isActive: entity.isActive,
     };
   }

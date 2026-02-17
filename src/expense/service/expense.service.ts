@@ -65,7 +65,7 @@ export class ExpenseService {
     if (budgetId) await this.budgetService.validateBudgetId(budgetId);
 
     const expense = ExpenseMapper.toEntityFromRequest(request);
-    expense.userId = auth.user.uuid;
+    expense.userId = auth.user.userId;
 
     const savedExpense = await this.repository.createEntity(expense);
     const tx = await this.createTransaction(savedExpense, account.accountType);

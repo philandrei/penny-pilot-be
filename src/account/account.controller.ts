@@ -32,7 +32,7 @@ export class AccountController {
     @Param('uuid') uuid: string,
     @Body() data: TransferAmountDto,
   ) {
-    return this.service.transferAmount(req.user.uuid, uuid, data);
+    return this.service.transferAmount(req.user.userId, uuid, data);
   }
 
   @Post(':uuid/deposit')
@@ -84,7 +84,7 @@ export class AccountController {
     @Query('page') page?: number,
     @Query('size') size?: number,
   ) {
-    return this.service.getAccounts(req.user.uuid, page, size);
+    return this.service.getAccounts(req.user.userId, page, size);
   }
 
   @Delete(':uuid')

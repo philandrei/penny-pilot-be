@@ -50,7 +50,7 @@ export class CategoryController {
     @Query('page') page?: number,
     @Query('size') size?: number,
   ) {
-    return this.service.getCategories(req.user.uuid, page, size);
+    return this.service.getCategories(req.user.userId, page, size);
   }
 
   @Delete(':uuid')

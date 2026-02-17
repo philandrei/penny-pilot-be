@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './service/user.service';
 import { ApiParam } from '@nestjs/swagger';
-import { CreateUserDto } from '@user/dtos/requests/create-user.dto';
+import { CreateUserDto } from '@user/dto/requests/create-user.dto';
 
 @Controller('users')
 export class UserController {

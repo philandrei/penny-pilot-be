@@ -37,7 +37,7 @@ export class CategoryService {
     request: CreateCategoryDto,
   ): Promise<CategoryDetailsDto> {
     const category = CategoryMapper.toEntityFromRequest(request);
-    category.userId = auth.user.uuid;
+    category.userId = auth.user.userId;
     return await this.repository
       .createEntity(category)
       .then((data) => CategoryMapper.toDetailFromEntity(data));

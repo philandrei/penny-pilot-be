@@ -1,17 +1,39 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
-import { CreateUserDto } from '@user/dtos/requests/create-user.dto';
-import { UserDetailsDto } from '@user/dtos/response/user-details.dto';
+import { CreateUserDto } from '@user/dto/requests/create-user.dto';
+import { UserDetailsDto } from '@user/dto/response/user-details.dto';
 import { UserMapper } from '@user/user.mapper';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { UserEntity } from '@user/entity/user.entity';
+import { hash } from '@common/utils/hash';
+import { UserType } from '@user/enum/user.enum';
 
 @Injectable()
 export class UserService {
   constructor(private readonly repository: UserRepository) {}
 
+  async updateRefreshToken(userId: string, refreshToken: string | null) {
+    const user: UserEntity | null = await this.getUserEntityById(userId);
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    user.refreshToken = refreshToken ? await hash(refreshToken) : refreshToken;
+    await this.repository.save(user);
+  }
+
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    return await this.repository.findByEmail(email);
+  }
+
   async createUser(request: CreateUserDto): Promise<UserDetailsDto> {
     const entity = UserMapper.toEntityFromCreateDto(request);
+
+    if (request.userType === UserType.LOCAL && request.password != null) {
+      entity.password = await hash(request.password);
+    }
+
     return this.repository
       .createEntity(entity)
       .then((data) => UserMapper.toDetailFromEntity(data));

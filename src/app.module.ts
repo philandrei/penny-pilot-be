@@ -7,6 +7,7 @@ import { AccountModule } from '@account/account.module';
 import { UserModule } from '@user/user.module';
 import { TransactionModule } from '@transaction/transaction.module';
 import { CategoryModule } from '@category/category.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CategoryModule } from '@category/category.module';
     UserModule,
     TransactionModule,
     CategoryModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

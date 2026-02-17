@@ -32,7 +32,7 @@ export class ExpenseController {
     @Query('page') page?: number,
     @Query('size') size?: number,
   ) {
-    return this.expenseService.getExpenses(req.user.uuid, page, size);
+    return this.expenseService.getExpenses(req.user.userId, page, size);
   }
 
   @Get(':budgetId/budgets')

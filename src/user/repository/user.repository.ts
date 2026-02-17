@@ -8,4 +8,10 @@ export class UserRepository extends AbstractRepository<UserEntity> {
   constructor(dataSource: DataSource) {
     super(UserEntity, dataSource);
   }
+
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    const qb = this.createQueryBuilder('u').where('u.email=:email', { email });
+
+    return qb.getOne();
+  }
 }

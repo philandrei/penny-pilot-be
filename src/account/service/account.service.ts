@@ -128,7 +128,7 @@ export class AccountService {
     const tx: CreateTransactionDto = {
       amount: data.amount,
       accountId,
-      userId: auth.user.uuid,
+      userId: auth.user.userId,
       sourceId: accountId,
       source: TransactionSource.DEPOSIT,
       description: data.description,
@@ -152,7 +152,7 @@ export class AccountService {
     const tx: CreateTransactionDto = {
       amount: account.balance,
       accountId,
-      userId: auth.user.uuid,
+      userId: auth.user.userId,
       sourceId: accountId,
       source: TransactionSource.CREDIT_RESET,
       description: 'Credit card statement paid',
@@ -188,7 +188,7 @@ export class AccountService {
     });
 
     const entity = AccountMapper.toEntityFromCreateDto(request);
-    entity.userId = auth.user.uuid;
+    entity.userId = auth.user.userId;
 
     if (request.accountType === AccountType.CREDIT_CARD) {
       entity.balance = '0';
