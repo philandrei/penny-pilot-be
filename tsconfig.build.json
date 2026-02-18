@@ -10,7 +10,8 @@
       "@account/*": ["src/account/*"],
       "@user/*": ["src/user/*"],
       "@transaction/*": ["src/transaction/*"],
-      "@category/*": ["src/category/*"]
+      "@category/*": ["src/category/*"],
+      "@auth/*": ["src/auth/*"]
     }
   },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]

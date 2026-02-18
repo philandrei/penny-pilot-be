@@ -10,7 +10,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { AccountService } from './service/account.service';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CreateAccountDto } from '@account/dtos/requests/create-account.dto';
 import { UpdateAccountDTO } from '@account/dtos/requests/update-account.dto';
 import type { AuthenticatedRequest } from '../auth/auth-request.interface';
@@ -18,12 +18,16 @@ import { AccountDepositDto } from '@account/dtos/requests/account-deposit.dto';
 import { TransferAmountDto } from '@account/dtos/requests/transfer-amount.dto';
 
 @Controller('accounts')
+@ApiBearerAuth()
 export class AccountController {
   constructor(private readonly service: AccountService) {}
 
   @Get(':uuid/transactions')
-  getAllTransactions(@Param('uuid') uuid: string) {
-    return this.service.getAccountTransactions(uuid);
+  getAllTransactions(
+    @Req() req: AuthenticatedRequest,
+    @Param('uuid') uuid: string,
+  ) {
+    return this.service.getAccountTransactions(req.user.userId, uuid);
   }
 
   @Post(':uuid/transfer')
@@ -41,7 +45,7 @@ export class AccountController {
     @Param('uuid') uuid: string,
     @Body() data: AccountDepositDto,
   ) {
-    return this.service.accountDeposit(req, uuid, data);
+    return this.service.accountDeposit(req.user.userId, uuid, data);
   }
 
   @Post(':uuid/credit/clear')
@@ -49,7 +53,7 @@ export class AccountController {
     @Req() req: AuthenticatedRequest,
     @Param('uuid') uuid: string,
   ) {
-    return this.service.clearCreditCardBalance(req, uuid);
+    return this.service.clearCreditCardBalance(req.user.userId, uuid);
   }
 
   @Post()
@@ -57,7 +61,7 @@ export class AccountController {
     @Req() req: AuthenticatedRequest,
     @Body() data: CreateAccountDto,
   ) {
-    return this.service.createAccount(req, data);
+    return this.service.createAccount(req.user.userId, data);
   }
 
   @Put(':uuid')
@@ -66,8 +70,8 @@ export class AccountController {
   }
 
   @Get(':uuid')
-  findAccount(@Param('uuid') uuid: string) {
-    return this.service.getAccountById(uuid);
+  findAccount(@Req() req: AuthenticatedRequest, @Param('uuid') uuid: string) {
+    return this.service.getAccountById(req.user.userId, uuid);
   }
 
   @Get()

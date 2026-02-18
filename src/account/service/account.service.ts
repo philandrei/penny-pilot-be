@@ -10,7 +10,6 @@ import { AccountMapper } from '@account/account.mapper';
 import { UpdateAccountDTO } from '@account/dtos/requests/update-account.dto';
 import { AccountEntity } from '@account/entity/account.entity';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
-import { AuthenticatedRequest } from '../../auth/auth-request.interface';
 import { isUUID } from 'class-validator';
 import { TransactionSource } from '@transaction/enums/transaction.enum';
 import { AccountType } from '@account/enum/account.enum';
@@ -27,11 +26,12 @@ export class AccountService {
   ) {}
 
   async getAccountTransactions(
+    userId: string,
     accountId: string,
     page?: number,
     size?: number,
   ): Promise<AccountDetailsDto> {
-    const account = await this.getAccountById(accountId);
+    const account = await this.getAccountById(userId, accountId);
 
     if (!account) {
       throw new NotFoundException('Account does not exist');
@@ -90,7 +90,7 @@ export class AccountService {
       description: 'Transfer amount to ' + destinationAccount.uuid,
     };
 
-    await this.transactionService.createDebitTransaction(debitTx);
+    await this.transactionService.createDebitTransaction(userId, debitTx);
 
     //credit the amount to destination account
     const creditTx: CreateTransactionDto = {
@@ -102,9 +102,9 @@ export class AccountService {
       description: 'Receive amount from ' + sourceAccount.uuid,
     };
 
-    await this.transactionService.createCreditTransaction(creditTx);
+    await this.transactionService.createCreditTransaction(userId, creditTx);
 
-    return await this.getAccountById(sourceAccount.uuid);
+    return await this.getAccountById(userId, sourceAccount.uuid);
   }
 
   async findByName(name: string): Promise<AccountEntity | null> {
@@ -114,11 +114,11 @@ export class AccountService {
   }
 
   async accountDeposit(
-    auth: AuthenticatedRequest,
+    userId: string,
     accountId: string,
     data: AccountDepositDto,
   ): Promise<AccountDetailsDto> {
-    const account = await this.getAccountById(accountId);
+    const account = await this.getAccountById(userId, accountId);
     if (account.accountType === AccountType.CREDIT_CARD) {
       throw new BadRequestException(
         'Deposits are not allowed for credit card accounts',
@@ -128,22 +128,22 @@ export class AccountService {
     const tx: CreateTransactionDto = {
       amount: data.amount,
       accountId,
-      userId: auth.user.userId,
+      userId: userId,
       sourceId: accountId,
       source: TransactionSource.DEPOSIT,
       description: data.description,
     };
 
-    await this.transactionService.createCreditTransaction(tx);
+    await this.transactionService.createCreditTransaction(userId, tx);
 
-    return this.getAccountById(accountId);
+    return this.getAccountById(userId, accountId);
   }
 
   async clearCreditCardBalance(
-    auth: AuthenticatedRequest,
+    userId: string,
     accountId: string,
   ): Promise<AccountDetailsDto> {
-    const account = await this.getAccountById(accountId);
+    const account = await this.getAccountById(userId, accountId);
 
     if (account.accountType !== AccountType.CREDIT_CARD) {
       throw new BadRequestException('Account is not a credit card');
@@ -152,15 +152,15 @@ export class AccountService {
     const tx: CreateTransactionDto = {
       amount: account.balance,
       accountId,
-      userId: auth.user.userId,
+      userId: userId,
       sourceId: accountId,
       source: TransactionSource.CREDIT_RESET,
       description: 'Credit card statement paid',
     };
 
-    await this.transactionService.createDebitTransaction(tx);
+    await this.transactionService.createDebitTransaction(userId, tx);
 
-    return await this.getAccountById(accountId);
+    return await this.getAccountById(userId, accountId);
   }
 
   async validateAccountId(uuid: string): Promise<void> {
@@ -180,7 +180,7 @@ export class AccountService {
   }
 
   async createAccount(
-    auth: AuthenticatedRequest,
+    userId: string,
     request: CreateAccountDto,
   ): Promise<AccountDetailsDto> {
     await this.findByName(request.name).then((data) => {
@@ -188,7 +188,7 @@ export class AccountService {
     });
 
     const entity = AccountMapper.toEntityFromCreateDto(request);
-    entity.userId = auth.user.userId;
+    entity.userId = userId;
 
     if (request.accountType === AccountType.CREDIT_CARD) {
       entity.balance = '0';
@@ -212,8 +212,11 @@ export class AccountService {
     });
   }
 
-  async getAccountById(uuid: string): Promise<AccountDetailsDto> {
-    return await this.repository.findById(uuid).then((data) => {
+  async getAccountById(
+    userId: string,
+    uuid: string,
+  ): Promise<AccountDetailsDto> {
+    return await this.repository.findOneBy({ uuid, userId }).then((data) => {
       if (!data) {
         throw new NotFoundException(`Account with UUID ${uuid} not found`);
       }

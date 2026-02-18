@@ -11,10 +11,11 @@ import {
 } from '@nestjs/common';
 import { BudgetService } from '@budget/service/budget.service';
 import { BudgetRequestDto } from '@budget/dto/requests/budget-request.dto';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import type { AuthenticatedRequest } from '../auth/auth-request.interface';
 
 @Controller('budgets')
+@ApiBearerAuth()
 export class BudgetController {
   constructor(private readonly budgetService: BudgetService) {}
 

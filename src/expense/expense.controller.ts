@@ -9,12 +9,13 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { ExpenseService } from '@expense/service/expense.service';
 import { CreateExpenseDto } from '@expense/dto/requests/create-expense.dto';
 import type { AuthenticatedRequest } from '../auth/auth-request.interface';
 
 @Controller('expenses')
+@ApiBearerAuth()
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
@@ -45,11 +46,17 @@ export class ExpenseController {
     required: false,
   })
   getAllExpensesByBudgetId(
+    @Req() req: AuthenticatedRequest,
     @Param('budgetId') budgetId: string,
     @Query('page') page?: number,
     @Query('size') size?: number,
   ) {
-    return this.expenseService.getExpensesByBudgetId(budgetId, page, size);
+    return this.expenseService.getExpensesByBudgetId(
+      req.user.userId,
+      budgetId,
+      page,
+      size,
+    );
   }
 
   @Post()
@@ -57,34 +64,28 @@ export class ExpenseController {
     @Req() req: AuthenticatedRequest,
     @Body() data: CreateExpenseDto,
   ) {
-    return this.expenseService.createExpense(req, data);
+    return this.expenseService.createExpense(req.user.userId, data);
   }
 
   @Put(':uuid')
-  updateExpense(@Param('uuid') uuid: string, @Body() req: CreateExpenseDto) {
-    return this.expenseService.updateExpense(uuid, req);
+  updateExpense(
+    @Req() req: AuthenticatedRequest,
+    @Param('uuid') uuid: string,
+    @Body() data: CreateExpenseDto,
+  ) {
+    return this.expenseService.updateExpense(req.user.userId, uuid, data);
   }
 
   @Get(':uuid')
-  findExpense(@Param('uuid') uuid: string) {
-    return this.expenseService.findByUuid(uuid);
+  findExpense(@Req() req: AuthenticatedRequest, @Param('uuid') uuid: string) {
+    return this.expenseService.findByUuid(req.user.userId, uuid);
   }
 
-  // @Get()
-  // @ApiParam({
-  //   name: 'page',
-  //   required: false,
-  // })
-  // @ApiParam({
-  //   name: 'size',
-  //   required: false,
-  // })
-  // findAllExpenses(@Query('page') page?: number, @Query('size') size?: number) {
-  //   return this.expenseService.getExpenses(page, size);
-  // }
-
   @Delete(':uuid')
-  deleteExpenseById(@Param('uuid') uuid: string) {
-    return this.expenseService.deleteExpense(uuid);
+  deleteExpenseById(
+    @Req() req: AuthenticatedRequest,
+    @Param('uuid') uuid: string,
+  ) {
+    return this.expenseService.deleteExpense(req.user.userId, uuid);
   }
 }

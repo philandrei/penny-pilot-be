@@ -30,18 +30,21 @@ export class TransactionService {
   }
 
   async createCreditTransaction(
+    userId: string,
     data: CreateTransactionDto,
   ): Promise<TransactionDetailsDto> {
-    return await this.createTransaction(data, TransactionType.CREDIT);
+    return await this.createTransaction(userId, data, TransactionType.CREDIT);
   }
 
   async createDebitTransaction(
+    userId: string,
     data: CreateTransactionDto,
   ): Promise<TransactionDetailsDto> {
-    return await this.createTransaction(data, TransactionType.DEBIT);
+    return await this.createTransaction(userId, data, TransactionType.DEBIT);
   }
 
   private async createTransaction(
+    userId: string,
     data: CreateTransactionDto,
     transactionType: TransactionType,
   ): Promise<TransactionDetailsDto> {

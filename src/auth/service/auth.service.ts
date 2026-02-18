@@ -89,6 +89,6 @@ export class AuthService {
 
     void (await this.userService.updateRefreshToken(userId, refreshToken));
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, userId };
   }
 }

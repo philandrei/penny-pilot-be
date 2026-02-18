@@ -10,11 +10,12 @@ import {
   Req,
 } from '@nestjs/common';
 import { CategoryService } from './service/category.service';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CreateCategoryDto } from '@category/dtos/request/create-category.dto';
 import type { AuthenticatedRequest } from '../auth/auth-request.interface';
 
 @Controller('categories')
+@ApiBearerAuth()
 export class CategoryController {
   constructor(private readonly service: CategoryService) {}
 

@@ -11,6 +11,7 @@ export class ExpenseRepository extends AbstractRepository<ExpenseEntity> {
   }
 
   async findExpensesByBudgetId(
+    userId: string,
     budgetId: string,
     page = 1,
     size = 10,
