@@ -10,7 +10,7 @@ async function bootstrap() {
   app.enableCors();
 
   //dev env only
-  app.useGlobalGuards(new MockAuthGuard());
+  // app.useGlobalGuards(new MockAuthGuard());
   //exception filter
   app.useGlobalFilters(new GlobalExceptionFilter());
 
@@ -26,17 +26,26 @@ async function bootstrap() {
     .setTitle('Penny Pilot API')
     .setDescription('API documentation for Penny Pilot')
     .setVersion('1.0')
-    // .addBearerAuth() // remove if not using JWT
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'Authorization',
+      description: 'Enter JWT access token',
+      in: 'header',
+    })
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    operationIdFactory: (controllerKey, methodKey) => methodKey,
+  });
 
-  app
-    .getHttpAdapter()
-    .getInstance()
-    .get('/swagger-json', (_req, res) => {
-      res.json(document);
-    });
+  // app
+  //   .getHttpAdapter()
+  //   .getInstance()
+  //   .get('/swagger-json', (_req, res) => {
+  //     res.json(document);
+  //   });
   SwaggerModule.setup('api', app, document);
   await app.listen(process.env.PORT ?? 3000);
 }

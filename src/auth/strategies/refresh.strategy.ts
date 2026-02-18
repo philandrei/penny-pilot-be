@@ -8,18 +8,20 @@ import { Request } from 'express';
 export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(private readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromBodyField('refreshToken'),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('JWT_REFRESH_SECRET')!,
       passReqToCallback: true,
     });
   }
 
   validate(req: Request, payload: any) {
+    const authHeader = req.headers.authorization;
+    const refreshToken = authHeader?.replace('Bearer ', '');
+
     return {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
       userId: payload.sub,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-      refreshToken: req.body.refreshToken,
+      refreshToken,
     };
   }
 }

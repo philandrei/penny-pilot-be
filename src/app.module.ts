@@ -7,7 +7,9 @@ import { AccountModule } from '@account/account.module';
 import { UserModule } from '@user/user.module';
 import { TransactionModule } from '@transaction/transaction.module';
 import { CategoryModule } from '@category/category.module';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from '@auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtGuard } from '@auth/guards/jwt.guard';
 
 @Module({
   imports: [
@@ -20,6 +22,12 @@ import { AuthModule } from './auth/auth.module';
     TransactionModule,
     CategoryModule,
     AuthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtGuard,
+    },
   ],
 })
 export class AppModule {}
