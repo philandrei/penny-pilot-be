@@ -5,7 +5,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from '@auth/auth.controller';
 import { AuthService } from '@auth/service/auth.service';
 import { JwtStrategy } from '@auth/strategies/jwt.strategy';
-import { RefreshStrategy } from '@auth/strategies/refresh.strategy';
 
 @Module({
   imports: [
@@ -36,6 +35,6 @@ import { RefreshStrategy } from '@auth/strategies/refresh.strategy';
     UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RefreshStrategy],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

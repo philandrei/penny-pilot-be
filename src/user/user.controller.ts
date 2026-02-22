@@ -7,10 +7,12 @@ import {
   Post,
   Put,
   Query,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './service/user.service';
 import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CreateUserDto } from '@user/dto/requests/create-user.dto';
+import type { AuthenticatedRequest } from '@auth/auth-request.interface';
 
 @Controller('users')
 @ApiBearerAuth()

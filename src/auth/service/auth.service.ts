@@ -48,7 +48,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.issueTokens(user.uuid);
+    return this.issueTokens(user);
   }
 
   async logout(userId: string) {
@@ -56,10 +56,15 @@ export class AuthService {
     return 'success';
   }
 
-  async refreshTokens(
-    userId: string,
-    refreshToken: string,
-  ): Promise<AuthResponse> {
+  async refreshTokens(refreshToken: string): Promise<AuthResponse> {
+    const payload = await this.jwtService.verifyAsync<{ sub: string }>(
+      refreshToken,
+      {
+        secret: this.configService.get('JWT_REFRESH_SECRET'),
+      },
+    );
+    const userId = payload.sub;
+
     const existingUser = await this.userService.getUserEntityById(userId);
     if (!existingUser || !existingUser.refreshToken) {
       throw new UnauthorizedException('Invalid credentials');
@@ -71,11 +76,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return await this.issueTokens(userId);
+    return await this.issueTokens(existingUser);
   }
 
-  private async issueTokens(userId: string): Promise<AuthResponse> {
-    const payload = { sub: userId };
+  private async issueTokens(user: UserDetailsDto): Promise<AuthResponse> {
+    const payload = { sub: user.uuid };
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
@@ -87,8 +92,20 @@ export class AuthService {
       expiresIn: this.configService.get('JWT_REFRESH_EXPIRES'),
     });
 
-    void (await this.userService.updateRefreshToken(userId, refreshToken));
+    void (await this.userService.updateRefreshToken(user.uuid, refreshToken));
 
-    return { accessToken, refreshToken, userId };
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        uuid: user.uuid,
+        email: user.email,
+        createdAt: user.createdAt,
+        isDeleted: user.isDeleted,
+        updatedAt: user.updatedAt,
+        fullName: user.fullName,
+        isActive: user.isActive,
+      },
+    };
   }
 }
