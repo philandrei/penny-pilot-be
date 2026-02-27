@@ -23,7 +23,7 @@ export class AccountService {
   constructor(
     private readonly repository: AccountRepository,
     private readonly transactionService: TransactionService,
-  ) {}
+  ) { }
 
   async getAccountTransactions(
     userId: string,
@@ -107,9 +107,9 @@ export class AccountService {
     return await this.getAccountById(userId, sourceAccount.uuid);
   }
 
-  async findByName(name: string): Promise<AccountEntity | null> {
+  async findByName(userId: string, name: string): Promise<AccountEntity | null> {
     return await this.repository.findOne({
-      where: { name },
+      where: { userId, name },
     });
   }
 
@@ -183,7 +183,7 @@ export class AccountService {
     userId: string,
     request: CreateAccountDto,
   ): Promise<AccountDetailsDto> {
-    await this.findByName(request.name).then((data) => {
+    await this.findByName(userId, request.name).then((data) => {
       if (data) throw new BadRequestException('Account name already exists');
     });
 

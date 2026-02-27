@@ -40,12 +40,12 @@ export class AuthService {
       data.email,
     );
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new BadRequestException('Invalid credentials');
     }
 
     const isValid = await compare(data.password, user.password);
     if (!isValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new BadRequestException('Invalid credentials');
     }
 
     return this.issueTokens(user);
