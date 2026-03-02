@@ -10,6 +10,7 @@ import { CategoryModule } from '@category/category.module';
 import { AuthModule } from '@auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from '@auth/guards/jwt.guard';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { JwtGuard } from '@auth/guards/jwt.guard';
     TransactionModule,
     CategoryModule,
     AuthModule,
+    DashboardModule
   ],
   providers: [
     {
@@ -30,4 +32,4 @@ import { JwtGuard } from '@auth/guards/jwt.guard';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

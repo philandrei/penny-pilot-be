@@ -10,10 +10,10 @@ import { AccountRepository } from '@account/repository/account.repository';
 @Module({
   controllers: [TransactionController],
   providers: [TransactionRepository, TransactionService, AccountRepository],
-  exports: [TransactionService],
+  exports: [TransactionService, TransactionRepository],
   imports: [
     TypeOrmModule.forFeature([TransactionEntity]),
     TypeOrmModule.forFeature([AccountEntity]),
   ],
 })
-export class TransactionModule {}
+export class TransactionModule { }

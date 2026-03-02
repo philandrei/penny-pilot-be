@@ -21,5 +21,6 @@ import { AccountModule } from '@account/account.module';
   ],
   controllers: [ExpenseController],
   providers: [ExpenseService, ExpenseRepository],
+  exports: [ExpenseService]
 })
-export class ExpenseModule {}
+export class ExpenseModule { }
