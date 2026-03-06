@@ -29,7 +29,6 @@ export class CreateExpenseDto {
   @ApiProperty({
     example: null,
   })
-  @IsUUID()
   @IsOptional()
   budgetId?: string;
 
