@@ -17,14 +17,14 @@ import type { AuthenticatedRequest } from '../auth/auth-request.interface';
 @Controller('categories')
 @ApiBearerAuth()
 export class CategoryController {
-  constructor(private readonly service: CategoryService) {}
+  constructor(private readonly service: CategoryService) { }
 
   @Post()
   createCategorie(
     @Req() req: AuthenticatedRequest,
     @Body() data: CreateCategoryDto,
   ) {
-    return this.service.createCategory(req, data);
+    return this.service.createCategory(req.user.userId, data);
   }
 
   @Put(':uuid')

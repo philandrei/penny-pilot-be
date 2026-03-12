@@ -14,7 +14,19 @@ import { CategoryRepository } from '@category/repository/category.repository';
 
 @Injectable()
 export class CategoryService {
-  constructor(private readonly repository: CategoryRepository) {}
+  constructor(private readonly repository: CategoryRepository) { }
+
+  async initialCategories(userId: string) {
+    await this.repository.find({
+      where: { userId }
+    }).then((data) => {
+      if (data.length == 0) {
+        ["Food", "Transport", "Shopping", "Grocery", "Bills", "Entertainment"].forEach((d) =>
+          this.createCategory(userId, { name: d, color: 'yelow', icon: 'dragon' })
+        )
+      }
+    })
+  }
 
   async validateCategoryId(uuid: string): Promise<void> {
     if (!isUUID(uuid)) {
@@ -33,11 +45,11 @@ export class CategoryService {
   }
 
   async createCategory(
-    auth: AuthenticatedRequest,
+    userId: string,
     request: CreateCategoryDto,
   ): Promise<CategoryDetailsDto> {
     const category = CategoryMapper.toEntityFromRequest(request);
-    category.userId = auth.user.userId;
+    category.userId = userId;
     return await this.repository
       .createEntity(category)
       .then((data) => CategoryMapper.toDetailFromEntity(data));

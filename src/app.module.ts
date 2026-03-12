@@ -11,6 +11,7 @@ import { AuthModule } from '@auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from '@auth/guards/jwt.guard';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     TransactionModule,
     CategoryModule,
     AuthModule,
-    DashboardModule
+    DashboardModule,
+    AiModule
   ],
   providers: [
     {

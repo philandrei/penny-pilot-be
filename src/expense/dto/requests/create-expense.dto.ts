@@ -2,11 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateExpenseDto {
-  @ApiProperty({
-    example: 'Grab',
-  })
-  @IsString()
-  name: string;
 
   @ApiProperty({
     example: 'test description',

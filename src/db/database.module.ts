@@ -11,7 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         type: 'postgres',
         url: configService.get<string>('DB_URL'),
         autoLoadEntities: true,
-        synchronize: configService.get('DB_SYNCHRONIZE', false),
+        synchronize: configService.get('DB_SYNCHRONIZE', true),
         // dropSchema: configService.get('DB_RECREATE', true),
       }),
     }),

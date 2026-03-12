@@ -9,7 +9,6 @@ export class ExpenseMapper {
     request: CreateExpenseDto,
   ): DeepPartial<ExpenseEntity> {
     return {
-      name: request.name,
       description: request.description,
       date: request.date,
       amount: request.amount,
@@ -22,7 +21,6 @@ export class ExpenseMapper {
   static toDetailDtoFromEntity(entity: ExpenseEntity): ExpenseDetailDto {
     return {
       uuid: entity.uuid,
-      name: entity.name,
       amount: entity.amount,
       date: entity.date,
       createdAt: entity.createdAt,

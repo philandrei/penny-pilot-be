@@ -9,6 +9,7 @@ import { TransactionModule } from '@transaction/transaction.module';
 import { CategoryModule } from '@category/category.module';
 import { UserModule } from '@user/user.module';
 import { AccountModule } from '@account/account.module';
+import { AiModule } from 'src/ai/ai.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AccountModule } from '@account/account.module';
     CategoryModule,
     UserModule,
     AccountModule,
+    AiModule
   ],
   controllers: [ExpenseController],
   providers: [ExpenseService, ExpenseRepository],

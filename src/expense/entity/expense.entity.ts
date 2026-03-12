@@ -7,8 +7,6 @@ import { CategoryEntity } from '../../category/entity/category.entity';
 
 @Entity('expenses')
 export class ExpenseEntity extends AbstractEntity {
-  @Column({ nullable: true })
-  name: string;
 
   @Column({ nullable: true })
   userId: string;
@@ -33,6 +31,13 @@ export class ExpenseEntity extends AbstractEntity {
 
   @Column({ type: 'uuid', nullable: true })
   transactionId: string;
+
+  @Column({
+    type: 'vector',
+    length: 384,
+    nullable: true
+  })
+  embedding: number[];
 
   @ManyToOne(() => CategoryEntity)
   @JoinColumn({ name: 'categoryId' })

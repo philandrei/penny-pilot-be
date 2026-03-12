@@ -13,14 +13,16 @@ import { UserEntity } from '@user/entity/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from '@common/utils/hash';
 import { ConfigService } from '@nestjs/config';
+import { CategoryService } from '@category/service/category.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly categoryService: CategoryService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async register(data: RegistrationDto): Promise<UserDetailsDto> {
     const existingUser = await this.userService.findByEmail(data.email);
@@ -29,10 +31,14 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
 
-    return this.userService.createUser({
+    const user = await this.userService.createUser({
       ...data,
       userType: UserType.LOCAL,
     });
+
+    void await this.categoryService.initialCategories(user.uuid);
+
+    return user;
   }
 
   async login(data: LoginDto): Promise<AuthResponse> {

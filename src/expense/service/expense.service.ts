@@ -17,6 +17,9 @@ import { ExpenseEntity } from '@expense/entity/expense.entity';
 import { TransactionDetailsDto } from '@transaction/dto/response/transaction-details.dto';
 import { AccountType } from '@account/enum/account.enum';
 import { CreateTransactionDto } from '@transaction/dto/request/create-transaction.dto';
+import { CategorizerResponse } from 'src/ai/dto/response/categorizer-response.dto';
+import { CategorizerRequest } from 'src/ai/dto/request/categorizer-request.dto';
+import { AiService } from 'src/ai/ai.service';
 
 @Injectable()
 export class ExpenseService {
@@ -26,7 +29,8 @@ export class ExpenseService {
     private readonly accountService: AccountService,
     private readonly transactionService: TransactionService,
     private readonly categoryService: CategoryService,
-  ) {}
+    private readonly aiService: AiService
+  ) { }
 
   private async createTransaction(
     userId: string,
@@ -46,6 +50,14 @@ export class ExpenseService {
       return await this.transactionService.createCreditTransaction(userId, tx);
     }
     return await this.transactionService.createDebitTransaction(userId, tx);
+  }
+
+  async categorizeExpense(userId: string, description: string): Promise<CategorizerResponse> {
+    const request = new CategorizerRequest();
+    request.userId = userId;
+    request.description = description;
+
+    return await this.aiService.categorizer(request);
   }
 
   async createExpense(
@@ -76,7 +88,14 @@ export class ExpenseService {
       savedExpense,
       account.accountType,
     );
+
+    // for AI
+    // const categorizer: CategorizerResponse = await this.categorizeExpense(savedExpense.userId, savedExpense.description)
+    // savedExpense.embedding = categorizer.embedding;
+    // savedExpense.categoryId = categorizer.category;
+
     savedExpense.transactionId = tx.uuid;
+    
 
     void (await this.repository.updateById(savedExpense.uuid, savedExpense));
 
@@ -96,13 +115,15 @@ export class ExpenseService {
     uuid: string,
     request: CreateExpenseDto,
   ): Promise<ExpenseDetailDto> {
-    const expense = ExpenseMapper.toEntityFromRequest(request);
 
     const existingExpense = await this.repository.findById(uuid);
 
     if (!existingExpense) {
       throw new NotFoundException(`Expense with UUID ${uuid} not found`);
     }
+
+    const expense = ExpenseMapper.toEntityFromRequest(request);
+
     const savedExpense = await this.repository.updateById(uuid, expense);
 
     if (!savedExpense) {
