@@ -42,7 +42,7 @@ export abstract class AbstractRepository<
     page = 1,
     size = 10,
     relations?: string[],
-    options?: FindOptionsWhere<T>,
+    options?: FindOptionsWhere<T> | FindOptionsWhere<T>[],
   ): Promise<PaginatedResponseDto<T>> {
     const [items, total] = await this.findAndCount({
       skip: (page - 1) * size,

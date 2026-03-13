@@ -20,6 +20,7 @@ import { CreateTransactionDto } from '@transaction/dto/request/create-transactio
 import { CategorizerResponse } from 'src/ai/dto/response/categorizer-response.dto';
 import { CategorizerRequest } from 'src/ai/dto/request/categorizer-request.dto';
 import { AiService } from 'src/ai/ai.service';
+import { ILike } from 'typeorm';
 
 @Injectable()
 export class ExpenseService {
@@ -95,7 +96,7 @@ export class ExpenseService {
     // savedExpense.categoryId = categorizer.category;
 
     savedExpense.transactionId = tx.uuid;
-    
+
 
     void (await this.repository.updateById(savedExpense.uuid, savedExpense));
 
@@ -171,9 +172,10 @@ export class ExpenseService {
     userId: string,
     page?: number,
     size?: number,
+    search?: string,
   ): Promise<PaginatedResponseDto<ExpenseDetailDto>> {
     return this.repository
-      .findAll(page, size, ['category', 'account', 'budget'], { userId })
+      .findAll(page, size, ['category', 'account', 'budget'], [{ userId, description: ILike(`%${search}%`) }, { userId, category: { name: ILike(`%${search}%`) } }])
       .then((result) => ({
         ...result,
         items: result.items.map((item) =>

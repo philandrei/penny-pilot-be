@@ -17,7 +17,7 @@ import type { AuthenticatedRequest } from '../auth/auth-request.interface';
 @Controller('expenses')
 @ApiBearerAuth()
 export class ExpenseController {
-  constructor(private readonly expenseService: ExpenseService) {}
+  constructor(private readonly expenseService: ExpenseService) { }
 
   @Get()
   @ApiParam({
@@ -30,10 +30,11 @@ export class ExpenseController {
   })
   getAllExpenses(
     @Req() req: AuthenticatedRequest,
-    @Query('page') page?: number,
-    @Query('size') size?: number,
+    @Query('page') page: number = 0,
+    @Query('size') size: number = 10,
+    @Query('search') search: string = "",
   ) {
-    return this.expenseService.getExpenses(req.user.userId, page, size);
+    return this.expenseService.getExpenses(req.user.userId, page, size, search);
   }
 
   @Get(':budgetId/budgets')
