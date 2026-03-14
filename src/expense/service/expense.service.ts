@@ -175,12 +175,13 @@ export class ExpenseService {
     search?: string,
   ): Promise<PaginatedResponseDto<ExpenseDetailDto>> {
     return this.repository
-      .findAll(page, size, ['category', 'account', 'budget'], [{ userId, description: ILike(`%${search}%`) }, { userId, category: { name: ILike(`%${search}%`) } }])
+      .findAll(page, size, ['category', 'account', 'budget'], [{ userId, description: ILike(`%${search}%`) }, { userId, category: { name: ILike(`%${search}%`) } }, { userId, account: { name: ILike(`%${search}%`) } }])
       .then((result) => ({
         ...result,
         items: result.items.map((item) =>
           ExpenseMapper.toDetailDtoFromEntity(item),
         ),
+        totalExpense: result.items.reduce((total, item) => total + parseFloat(item.amount), 0),
       }));
   }
 
