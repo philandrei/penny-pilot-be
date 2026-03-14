@@ -6,6 +6,7 @@ import {
   Repository,
   QueryDeepPartialEntity,
   FindOptionsOrder,
+  FindManyOptions,
 } from 'typeorm';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { AbstractEntity } from '@abstracts/abstract-entity';
@@ -38,26 +39,32 @@ export abstract class AbstractRepository<
     await this.delete({ uuid } as FindOptionsWhere<T>);
   }
 
-  async findAll(
-    page = 1,
-    size = 10,
-    relations?: string[],
-    options?: FindOptionsWhere<T> | FindOptionsWhere<T>[],
-  ): Promise<PaginatedResponseDto<T>> {
-    const [items, total] = await this.findAndCount({
-      skip: (page - 1) * size,
-      take: size,
-      order: { createdAt: 'DESC' } as FindOptionsOrder<T>,
-      relations,
-      where: options,
-    });
+async findAll(
+  page?: number,
+  size?: number,
+  relations?: string[],
+  options?: FindOptionsWhere<T> | FindOptionsWhere<T>[],
+): Promise<PaginatedResponseDto<T>> {
 
-    return {
-      items,
-      total,
-      page,
-      size,
-      totalPages: Math.ceil(total / size),
-    };
+  const query: FindManyOptions<T> = {
+    order: { createdAt: 'DESC' } as FindOptionsOrder<T>,
+    relations,
+    where: options,
+  };
+
+  if (page && size) {
+    query.skip = (page - 1) * size;
+    query.take = size;
   }
+
+  const [items, total] = await this.findAndCount(query);
+
+  return {
+    items,
+    total,
+    page: page ?? 1,
+    size: size ?? total,
+    totalPages: size ? Math.ceil(total / size) : 1,
+  };
+}
 }
