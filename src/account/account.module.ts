@@ -7,9 +7,9 @@ import { AccountController } from './account.controller';
 import { TransactionModule } from '@transaction/transaction.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AccountEntity]), TransactionModule],
+  imports: [TypeOrmModule.forFeature([AccountEntity])],
   providers: [AccountService, AccountRepository],
   controllers: [AccountController],
-  exports: [AccountService, AccountRepository],
+  exports: [AccountService],
 })
-export class AccountModule {}
+export class AccountModule { }

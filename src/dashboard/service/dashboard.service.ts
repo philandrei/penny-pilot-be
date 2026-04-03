@@ -1,10 +1,11 @@
 import { AccountRepository } from "@account/repository/account.repository";
 import { BudgetRepository } from "@budget/repository/budget.repository";
-import { ExpenseRepository } from "@expense/repository/expense.repository";
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { TransactionEntity } from "@transaction/entity/transaction.entity";
 import { TransactionSource } from "@transaction/enums/transaction.enum";
-import { TransactionRepository } from "@transaction/repository/transaction.repository";
 import dayjs from "dayjs";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class DashboardService {
@@ -12,10 +13,9 @@ export class DashboardService {
     constructor(
         private accountRepo: AccountRepository,
 
-        private expenseRepo: ExpenseRepository,
-
         private budgetRepo: BudgetRepository,
-        private transactionRepo: TransactionRepository
+        @InjectRepository(TransactionEntity)
+        private transactionRepo: Repository<TransactionEntity>
     ) { }
 
     async getDashboard(userId: string) {
@@ -88,15 +88,16 @@ export class DashboardService {
     }
 
     async getExpensesByCategory(userId: string, start: Date, end: Date) {
-
-        return this.expenseRepo
-            .createQueryBuilder('expense')
-            .leftJoin('expense.category', 'category')
+        const source = TransactionSource.EXPENSE;
+        return this.transactionRepo
+            .createQueryBuilder('transaction')
+            .leftJoin('transaction.category', 'category')
             .select('category.uuid', 'categoryId')
             .addSelect('category.name', 'categoryName')
-            .addSelect('SUM(expense.amount)', 'total')
-            .where('expense.userId = :userId', { userId })
-            .andWhere('expense.date BETWEEN :start AND :end', { start, end })
+            .addSelect('SUM(transaction.amount)', 'total')
+            .where('transaction.userId = :userId', { userId })
+            .andWhere('transaction.date BETWEEN :start AND :end', { start, end })
+            .andWhere('transaction.source = :source', { source })
             .groupBy('category.uuid')
             .addGroupBy('category.name')
             .getRawMany();
@@ -117,12 +118,14 @@ export class DashboardService {
     }
 
     async getRecentTransactions(userId: string) {
+        const source = TransactionSource.EXPENSE;
 
-        return this.expenseRepo
-            .createQueryBuilder('expense')
-            .leftJoinAndSelect('expense.category', 'category')
-            .where('expense.userId = :userId', { userId })
-            .orderBy('expense.date', 'DESC')
+        return this.transactionRepo
+            .createQueryBuilder('transaction')
+            .leftJoinAndSelect('transaction.category', 'category')
+            .where('transaction.userId = :userId', { userId })
+            .andWhere('transaction.source = :source', { source })
+            .orderBy('transaction.date', 'DESC')
             .limit(10)
             .getMany();
 

@@ -1,21 +1,28 @@
 import { AbstractEntity } from '@abstracts/abstract-entity';
 import { Column, Entity } from 'typeorm';
 import { AccountType } from '@account/enum/account.enum';
+import { Expose } from 'class-transformer';
 
 @Entity('accounts')
 export class AccountEntity extends AbstractEntity {
-  @Column()
-  name: string;
 
+  @Expose()
   @Column()
-  userId: string;
+  name!: string;
 
+  @Expose()
+  @Column()
+  userId!: string;
+
+  @Expose()
   @Column('decimal', { precision: 10, scale: 2 })
-  balance: string;
+  balance!: string;
 
+  @Expose()
   @Column({ default: false })
-  isDefault: boolean;
+  isDefault!: boolean;
 
+  @Expose()
   @Column({ type: 'enum', enum: AccountType, nullable: true })
-  type: AccountType;
+  type!: AccountType;
 }

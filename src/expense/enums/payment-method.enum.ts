@@ -1,8 +1,0 @@
-export enum PaymentMethodEnum {
-  CASH = 'CASH',
-  CREDIT_CARD = 'CREDIT CARD',
-  DEBIT_CARD = 'DEBIT CARD',
-  BANK_TRANSFER = 'BANK TRANSFER',
-  DIGITAL_WALLET = 'DIGITAL WALLET',
-  OTHER = 'OTHER',
-}

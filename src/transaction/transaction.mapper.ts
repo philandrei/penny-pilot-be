@@ -1,34 +1,19 @@
-import { CreateTransactionDto } from '@transaction/dto/request/create-transaction.dto';
 import { TransactionEntity } from '@transaction/entity/transaction.entity';
-import { TransactionDetailsDto } from '@transaction/dto/response/transaction-details.dto';
+import { TransactionRecord } from './dto/response/transaction-record.dto';
+import { plainToInstance } from 'class-transformer';
+import { ExpenseRequest } from './dto/request/expense-request.dto';
+import { TransactionUpdateDto } from './dto/request/transaction-update.dto';
 
 export class TransactionMapper {
-  static toEntityFromRequest(
-    data: CreateTransactionDto,
-  ): Partial<TransactionEntity> {
-    return {
-      userId: data.userId,
-      amount: data.amount,
-      description: data.description,
-      accountId: data.accountId,
-      sourceId: data.sourceId,
-      source: data.source,
-    };
+  static toRecordFromEntity(entity: TransactionEntity): TransactionRecord {
+    return plainToInstance(TransactionRecord, entity, {
+      excludeExtraneousValues: true
+    })
   }
 
-  static toDetailFromEntity(entity: TransactionEntity): TransactionDetailsDto {
-    return {
-      uuid: entity.uuid,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-      isDeleted: entity.isDeleted,
-      userId: entity.userId,
-      type: entity.type,
-      amount: entity.amount,
-      source: entity.source,
-      sourceId: entity.sourceId,
-      description: entity.description,
-      accountId: entity.accountId,
-    };
+  static toUpdateDtoFromExpense(request: ExpenseRequest): TransactionUpdateDto {
+    return plainToInstance(TransactionUpdateDto, request, {
+      excludeExtraneousValues: true
+    })
   }
 }

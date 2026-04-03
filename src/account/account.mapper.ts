@@ -2,6 +2,7 @@ import { CreateAccountDto } from './dtos/requests/create-account.dto';
 import { AccountEntity } from './entity/account.entity';
 import { AccountDetailsDto } from '@account/dtos/response/account-detail.dto';
 import { UpdateAccountDTO } from '@account/dtos/requests/update-account.dto';
+import { plainToInstance } from 'class-transformer';
 
 export class AccountMapper {
   static toEntityFromCreateDto(req: CreateAccountDto): Partial<AccountEntity> {
@@ -22,16 +23,8 @@ export class AccountMapper {
   }
 
   static toDetailFromEntity(entity: AccountEntity): AccountDetailsDto {
-    return {
-      uuid: entity.uuid,
-      name: entity.name,
-      balance: entity.balance,
-      updatedAt: entity.updatedAt,
-      createdAt: entity.createdAt,
-      isDeleted: entity.isDeleted,
-      isDefault: entity.isDefault,
-      accountType: entity.type,
-      transactions: undefined,
-    };
+    return plainToInstance(AccountDetailsDto, entity, {
+      excludeExtraneousValues: true
+    })
   }
 }

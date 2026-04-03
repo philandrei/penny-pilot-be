@@ -1,11 +1,17 @@
 import { AbstractBaseDto } from '@abstracts/abstract-base-dto';
 import { AccountType } from '@account/enum/account.enum';
-import { TransactionDetailsDto } from '@transaction/dto/response/transaction-details.dto';
+import { Expose } from 'class-transformer';
 
 export class AccountDetailsDto extends AbstractBaseDto {
-  name: string;
-  balance: string;
-  isDefault: boolean;
-  accountType: AccountType;
-  transactions: TransactionDetailsDto[] | undefined;
+  @Expose()
+  name!: string;
+
+  @Expose()
+  balance!: string;
+
+  @Expose()
+  isDefault!: boolean;
+
+  @Expose()
+  type!: AccountType;
 }

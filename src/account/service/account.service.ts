@@ -9,158 +9,69 @@ import { AccountDetailsDto } from '@account/dtos/response/account-detail.dto';
 import { AccountMapper } from '@account/account.mapper';
 import { UpdateAccountDTO } from '@account/dtos/requests/update-account.dto';
 import { AccountEntity } from '@account/entity/account.entity';
-import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
+import { PaginatedResponseDto } from '@common/pagination/paginated-response.dto';
 import { isUUID } from 'class-validator';
-import { TransactionSource } from '@transaction/enums/transaction.enum';
+import { TransactionType } from '@transaction/enums/transaction.enum';
 import { AccountType } from '@account/enum/account.enum';
-import { TransactionService } from '@transaction/service/transaction.service';
-import { AccountDepositDto } from '@account/dtos/requests/account-deposit.dto';
-import { CreateTransactionDto } from '@transaction/dto/request/create-transaction.dto';
-import { TransferAmountDto } from '@account/dtos/requests/transfer-amount.dto';
+import { EntityManager } from 'typeorm';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class AccountService {
   constructor(
     private readonly repository: AccountRepository,
-    private readonly transactionService: TransactionService,
+    // private readonly transactionService: TransactionService,
   ) { }
 
-  async getAccountTransactions(
-    userId: string,
-    accountId: string,
-    page?: number,
-    size?: number,
-  ): Promise<AccountDetailsDto> {
-    const account = await this.getAccountById(userId, accountId);
-
-    if (!account) {
-      throw new NotFoundException('Account does not exist');
-    }
-
-    account.transactions = await this.transactionService.findAllByAccountId(
-      accountId,
-      page,
-      size,
-    );
-
-    return account;
+  async creditBalance(manager: EntityManager, userId: string, accountId: string, amount: string): Promise<{ oldBalance, newBalance }> {
+    return await this.updateAccountBalance(manager, userId, accountId, amount, TransactionType.CREDIT);
   }
 
-  async transferAmount(
+  async debitBalance(manager: EntityManager, userId: string, accountId: string, amount: string): Promise<{ oldBalance, newBalance }> {
+    return await this.updateAccountBalance(manager, userId, accountId, amount, TransactionType.DEBIT);
+  }
+
+  private async updateAccountBalance(
+    manager: EntityManager,
     userId: string,
     accountId: string,
-    data: TransferAmountDto,
-  ): Promise<AccountDetailsDto> {
-    const sourceAccount: AccountEntity = await this.getAccountEntityById(
-      accountId,
-    ).then((data) => {
-      if (!data) {
-        throw new NotFoundException('Account ID does not exist');
-      }
+    amount: string,
+    direction: TransactionType,
+  ): Promise<{ oldBalance, newBalance }> {
+    const accountRepo = manager.getRepository(AccountEntity);
 
-      if (data.type === AccountType.CREDIT_CARD) {
-        throw new BadRequestException(
-          'Credit card should not transfer amount.',
-        );
-      }
-      return data;
-    });
+    const account = await accountRepo.findOne({
+      where: { uuid: accountId, userId },
+      lock: { mode: 'pessimistic_write' }
+    })
 
-    const destinationAccount: AccountEntity = await this.getAccountEntityById(
-      data.destinationAccountId,
-    ).then((data) => {
-      if (!data) {
-        throw new NotFoundException("Destination account doesn't exist");
-      }
-      if (data.type === AccountType.CREDIT_CARD) {
-        throw new BadRequestException(
-          'Destination account should not be a Credit card',
-        );
-      }
-      return data;
-    });
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
 
-    //debit first to the sourceAccount
-    const debitTx: CreateTransactionDto = {
-      amount: data.amount,
-      accountId: sourceAccount.uuid,
-      userId,
-      sourceId: sourceAccount.uuid,
-      source: TransactionSource.TRANSFER,
-      description: 'Transfer amount to ' + destinationAccount.uuid,
-    };
+    const oldBalance = new Decimal(account.balance);
+    const amt = new Decimal(amount);
 
-    await this.transactionService.createDebitTransaction(userId, debitTx);
+    const newBalance =
+      direction === TransactionType.CREDIT
+        ? oldBalance.plus(amt)
+        : oldBalance.minus(amt);
 
-    //credit the amount to destination account
-    const creditTx: CreateTransactionDto = {
-      amount: data.amount,
-      accountId: destinationAccount.uuid,
-      userId,
-      sourceId: sourceAccount.uuid,
-      source: TransactionSource.RECEIVE,
-      description: 'Receive amount from ' + sourceAccount.uuid,
-    };
+    if (newBalance.isNegative()) {
+      throw new BadRequestException('Insufficient balance');
+    }
 
-    await this.transactionService.createCreditTransaction(userId, creditTx);
+    account.balance = newBalance.toFixed(2);
 
-    return await this.getAccountById(userId, sourceAccount.uuid);
+    await accountRepo.save(account);
+
+    return { oldBalance, newBalance };
   }
 
   async findByName(userId: string, name: string): Promise<AccountEntity | null> {
     return await this.repository.findOne({
       where: { userId, name },
     });
-  }
-
-  async accountDeposit(
-    userId: string,
-    accountId: string,
-    data: AccountDepositDto,
-  ): Promise<AccountDetailsDto> {
-    const account = await this.getAccountById(userId, accountId);
-    if (account.accountType === AccountType.CREDIT_CARD) {
-      throw new BadRequestException(
-        'Deposits are not allowed for credit card accounts',
-      );
-    }
-
-    const tx: CreateTransactionDto = {
-      amount: data.amount,
-      accountId,
-      userId: userId,
-      sourceId: accountId,
-      source: TransactionSource.DEPOSIT,
-      description: data.description,
-    };
-
-    await this.transactionService.createCreditTransaction(userId, tx);
-
-    return this.getAccountById(userId, accountId);
-  }
-
-  async clearCreditCardBalance(
-    userId: string,
-    accountId: string,
-  ): Promise<AccountDetailsDto> {
-    const account = await this.getAccountById(userId, accountId);
-
-    if (account.accountType !== AccountType.CREDIT_CARD) {
-      throw new BadRequestException('Account is not a credit card');
-    }
-
-    const tx: CreateTransactionDto = {
-      amount: account.balance,
-      accountId,
-      userId: userId,
-      sourceId: accountId,
-      source: TransactionSource.CREDIT_RESET,
-      description: 'Credit card statement paid',
-    };
-
-    await this.transactionService.createDebitTransaction(userId, tx);
-
-    return await this.getAccountById(userId, accountId);
   }
 
   async validateAccountId(uuid: string): Promise<void> {

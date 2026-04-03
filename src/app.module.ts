@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { BudgetModule } from '@budget/budget.module';
-import { ExpenseModule } from '@expense/expense.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './db/database.module';
 import { AccountModule } from '@account/account.module';
@@ -12,20 +11,23 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from '@auth/guards/jwt.guard';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AiModule } from './ai/ai.module';
+import { PaginationModule } from '@common/pagination/pagination.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     BudgetModule,
-    ExpenseModule,
     AccountModule,
     UserModule,
     TransactionModule,
     CategoryModule,
     AuthModule,
     DashboardModule,
-    AiModule
+    AiModule,
+    PaginationModule
   ],
   providers: [
     {

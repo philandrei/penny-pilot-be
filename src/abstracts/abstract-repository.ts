@@ -8,7 +8,7 @@ import {
   FindOptionsOrder,
   FindManyOptions,
 } from 'typeorm';
-import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
+import { PaginatedResponseDto } from '@common/pagination/paginated-response.dto';
 import { AbstractEntity } from '@abstracts/abstract-entity';
 
 export abstract class AbstractRepository<

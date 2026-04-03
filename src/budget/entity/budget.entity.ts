@@ -1,35 +1,35 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { AbstractEntity } from '@abstracts/abstract-entity';
 import { BudgetPeriodEnum } from '../enums/budget-period.enum';
-import { ExpenseEntity } from '@expense/entity/expense.entity';
 import { Expose } from 'class-transformer';
+import { TransactionEntity } from '@transaction/entity/transaction.entity';
 
 @Entity('budgets')
 export class BudgetEntity extends AbstractEntity {
 
   @Expose()
   @Column()
-  name: string;
+  name!: string;
 
   @Expose()
   @Column({ nullable: true })
-  userId: string;
+  userId?: string;
 
   @Expose()
   @Column('decimal', { precision: 10, scale: 2 })
-  limitAmount: string;
+  limitAmount!: string;
 
   @Expose()
   @Column('decimal', { precision: 10, scale: 2, nullable: true, default: '0' })
-  spentAmount: string;
+  spentAmount?: string;
 
   @Expose()
   @Column({ nullable: true })
-  description: string;
+  description?: string;
 
   @Expose()
   @Column({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @Expose()
   @Column({
@@ -37,28 +37,28 @@ export class BudgetEntity extends AbstractEntity {
     enum: BudgetPeriodEnum,
     default: BudgetPeriodEnum.MONTHLY,
   })
-  period: BudgetPeriodEnum;
+  period!: BudgetPeriodEnum;
 
   @Expose()
   @Column({ type: 'date', nullable: true })
-  startDate: Date;
+  startDate?: Date;
 
   @Expose()
   @Column({ type: 'date', nullable: true })
-  endDate: Date;
+  endDate?: Date;
 
   @Expose()
   @Column({ nullable: true })
-  color: string;
+  color?: string;
 
   @Expose()
   @Column({ nullable: true })
-  icon: string;
+  icon?: string;
 
   @Expose()
   @Column('decimal', { precision: 10, scale: 2, default: 80 })
-  alertThreshold: string;
+  alertThreshold?: string;
 
-  @OneToMany(() => ExpenseEntity, (expense) => expense.budget)
-  expenses: ExpenseEntity[];
+  @OneToMany(() => TransactionEntity, (tx) => tx.budget)
+  transactions?: TransactionEntity[];
 }

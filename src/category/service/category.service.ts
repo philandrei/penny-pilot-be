@@ -7,7 +7,7 @@ import { AuthenticatedRequest } from '../../auth/auth-request.interface';
 import { CreateCategoryDto } from '@category/dtos/request/create-category.dto';
 import { CategoryDetailsDto } from '@category/dtos/response/create-details.dto';
 import { CategoryMapper } from '@category/category.mapper';
-import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
+import { PaginatedResponseDto } from '@common/pagination/paginated-response.dto';
 import { CategoryEntity } from '@category/entity/category.entity';
 import { isUUID } from 'class-validator';
 import { CategoryRepository } from '@category/repository/category.repository';

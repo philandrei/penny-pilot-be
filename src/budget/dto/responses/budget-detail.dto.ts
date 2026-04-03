@@ -25,5 +25,4 @@ export class BudgetDetailDto extends AbstractBaseDto {
   alertThreshold: string;
   @Expose()
   spentAmount: string;
-  // expenses: ExpenseEntity[];
 }

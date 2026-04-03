@@ -6,7 +6,6 @@
       "@common/*": ["src/common/*"],
       "@utils/*": ["src/utils/*"],
       "@budget/*": ["src/budget/*"],
-      "@expense/*": ["src/expense/*"],
       "@account/*": ["src/account/*"],
       "@user/*": ["src/user/*"],
       "@transaction/*": ["src/transaction/*"],

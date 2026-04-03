@@ -1,16 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { CreateUserDto } from '@user/dto/requests/create-user.dto';
 import { UserDetailsDto } from '@user/dto/response/user-details.dto';
 import { UserMapper } from '@user/user.mapper';
-import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
+import { PaginatedResponseDto } from '@common/pagination/paginated-response.dto';
 import { UserEntity } from '@user/entity/user.entity';
 import { hash } from '@common/utils/hash';
 import { UserType } from '@user/enum/user.enum';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly repository: UserRepository) {}
+  constructor(private readonly repository: UserRepository) { }
+
+  async validateUserId(uuid: string): Promise<void> {
+    if (!isUUID(uuid)) {
+      throw new BadRequestException('Invalid userId');
+    }
+
+    // 2. Existence
+    const user = await this.repository.findOneBy({ uuid: uuid });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  }
 
   async updateRefreshToken(userId: string, refreshToken: string | null) {
     const user: UserEntity | null = await this.getUserEntityById(userId);
