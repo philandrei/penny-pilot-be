@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { AbstractEntity } from '@abstracts/abstract-entity';
-import { TransactionSource } from '@transaction/enums/transaction.enum';
+import { TransactionCategory } from '@transaction/enums/transaction.enum';
 import { UserType } from '@user/enum/user.enum';
 
 @Entity('users')

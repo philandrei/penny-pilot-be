@@ -3,7 +3,7 @@ import { BudgetRepository } from "@budget/repository/budget.repository";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TransactionEntity } from "@transaction/entity/transaction.entity";
-import { TransactionSource } from "@transaction/enums/transaction.enum";
+import { TransactionCategory } from "@transaction/enums/transaction.enum";
 import dayjs from "dayjs";
 import { Repository } from "typeorm";
 
@@ -80,7 +80,7 @@ export class DashboardService {
             .createQueryBuilder('t')
             .select('SUM(t.amount)', 'total')
             .where('t.userId = :userId', { userId })
-            .andWhere('t.source = :source', { source: TransactionSource.EXPENSE })
+            .andWhere('t.source = :source', { source: TransactionCategory.EXPENSE })
             .andWhere('t.createdAt BETWEEN :start AND :end', { start, end })
             .getRawOne();
 
@@ -88,7 +88,7 @@ export class DashboardService {
     }
 
     async getExpensesByCategory(userId: string, start: Date, end: Date) {
-        const source = TransactionSource.EXPENSE;
+        const source = TransactionCategory.EXPENSE;
         return this.transactionRepo
             .createQueryBuilder('transaction')
             .leftJoin('transaction.category', 'category')
@@ -118,7 +118,7 @@ export class DashboardService {
     }
 
     async getRecentTransactions(userId: string) {
-        const source = TransactionSource.EXPENSE;
+        const source = TransactionCategory.EXPENSE;
 
         return this.transactionRepo
             .createQueryBuilder('transaction')
@@ -137,7 +137,7 @@ export class DashboardService {
             .createQueryBuilder('t')
             .select('SUM(t.amount)', 'total')
             .where('t.userId = :userId', { userId })
-            .andWhere('t.source = :source', { source: TransactionSource.DEPOSIT })
+            .andWhere('t.source = :source', { source: TransactionCategory.DEPOSIT })
             .andWhere('t.createdAt BETWEEN :start AND :end', { start, end })
             .getRawOne();
 

@@ -3,7 +3,7 @@ export enum TransactionType {
   DEBIT = 'DEBIT',
 }
 
-export enum TransactionSource {
+export enum TransactionCategory {
   EXPENSE = 'EXPENSE',
   EXPENSE_ADJUSTMENT = 'EXPENSE_ADJUSTMENT',
   INCOME = 'INCOME',
@@ -12,4 +12,15 @@ export enum TransactionSource {
   CREDIT_RESET = 'CREDIT_RESET',
   DEPOSIT = 'DEPOSIT',
   RECEIVE = 'RECEIVE',
+}
+
+export enum TransactionOrigin {
+  MANUAL = 'MANUAL',
+  RECURRING = 'RECURRING'
+}
+
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  CANCELLED = 'CANCELLED',
+  POSTED = 'POSTED'
 }

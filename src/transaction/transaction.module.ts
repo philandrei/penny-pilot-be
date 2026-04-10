@@ -20,6 +20,6 @@ import { ExpenseController } from './controller/expense.controller';
     CategoryModule,
     BudgetModule
   ],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule, TransactionMutationService]
 })
 export class TransactionModule { }

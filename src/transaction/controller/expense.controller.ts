@@ -2,7 +2,7 @@ import type { AuthenticatedRequest } from "@auth/auth-request.interface";
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiParam } from "@nestjs/swagger";
 import { ExpenseRequest } from "@transaction/dto/request/expense-request.dto";
-import { TransactionSource } from "@transaction/enums/transaction.enum";
+import { TransactionCategory } from "@transaction/enums/transaction.enum";
 import { TransactionMutationService } from "@transaction/service/transaction-mutation.service";
 import { TransactionQueryService } from "@transaction/service/transaction-query.service";
 import { TransactionMapper } from "@transaction/transaction.mapper";
@@ -37,11 +37,11 @@ export class ExpenseController {
     })
     getAllExpenses(
         @Req() auth: AuthenticatedRequest,
-        @Query('page') page: number = 0,
+        @Query('page') page: number = 1,
         @Query('size') size: number = 10,
         @Query('search') search: string = "",
     ) {
-        return this.txQueryService.getTransactions(auth.user.userId, TransactionSource.EXPENSE, page, size, search);
+        return this.txQueryService.getTransactions(auth.user.userId, TransactionCategory.EXPENSE, page, size, search);
     }
 
     @Get('/:transactionId')

@@ -20,5 +20,10 @@ export class TransactionController {
         return this.txMutationService.resetCreditCardBalance(auth.user.userId, accountId);
     }
 
+    @Post('/:transactionId/posted')
+    markAsPosted(@Req() auth: AuthenticatedRequest, @Param('transactionId') transactionId: string) {
+        return this.txMutationService.markAsPosted(auth.user.userId, transactionId);
+    }
+
 
 }

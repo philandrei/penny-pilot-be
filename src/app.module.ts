@@ -13,6 +13,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { AiModule } from './ai/ai.module';
 import { PaginationModule } from '@common/pagination/pagination.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { RecurringModule } from './recurring/recurring.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
     DashboardModule,
     AiModule,
-    PaginationModule
+    PaginationModule,
+    RecurringModule,
   ],
   providers: [
     {

@@ -1,18 +1,18 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class TransferAmountDto {
+export class TransferMoneyRequest {
   @ApiProperty({
     example: 'destinationAccountId',
   })
   @IsNotEmpty()
   @IsString()
-  destinationAccountId: string;
+  destinationAccountId!: string;
 
   @ApiProperty({
     example: '20',
   })
   @IsNotEmpty()
   @IsString()
-  amount: string;
+  amount!: string;
 }

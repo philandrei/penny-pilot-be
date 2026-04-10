@@ -7,11 +7,11 @@ export class DepositRequest {
   })
   @IsNotEmpty()
   @IsString()
-  amount: string;
+  amount!: string;
 
   @ApiProperty({
     example: 'Deposit from payroll',
   })
   @IsNotEmpty()
-  description: string;
+  description!: string;
 }

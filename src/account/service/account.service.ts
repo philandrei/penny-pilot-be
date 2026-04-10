@@ -80,7 +80,7 @@ export class AccountService {
     }
 
     // 2. Existence
-    const account = await this.repository.findOneBy({ uuid: uuid });
+    const account = await this.repository.findOneBy({ uuid });
     if (!account) {
       throw new NotFoundException('Account not found');
     }

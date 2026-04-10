@@ -2,17 +2,17 @@ import { Expose } from "class-transformer";
 
 export class TransactionUpdateDto {
     @Expose()
-    date: Date;
+    date!: Date;
 
     @Expose()
-    amount: string;
+    amount!: string;
 
     @Expose()
-    description: string;
+    description!: string;
 
     @Expose()
-    categoryId: string;
+    categoryId!: string;
 
     @Expose()
-    budgetId: string;
+    budgetId?: string;
 }

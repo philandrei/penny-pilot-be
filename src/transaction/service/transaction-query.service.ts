@@ -7,7 +7,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TransactionRecord } from "@transaction/dto/response/transaction-record.dto";
 import { TransactionEntity } from "@transaction/entity/transaction.entity";
-import { TransactionSource } from "@transaction/enums/transaction.enum";
+import { TransactionCategory } from "@transaction/enums/transaction.enum";
 import { TransactionMapper } from "@transaction/transaction.mapper";
 import { UserService } from "@user/service/user.service";
 import { FindOptionsWhere, ILike, Repository } from "typeorm";
@@ -21,6 +21,14 @@ export class TransactionQueryService {
         private readonly userService: UserService,
         private readonly accountService: AccountService,
     ) { }
+
+    async getTransactionEntityById(userId: string, transactionId: string): Promise<TransactionEntity> {
+        const entity = await this.repository.findOneBy({ uuid: transactionId });
+        if (!entity) {
+            throw new NotFoundException('Transaction ID does not exist');
+        }
+        return entity;
+    }
 
     async getTransactionById(userId: string, transactionId: string): Promise<TransactionRecord> {
         await this.userService.validateUserId(userId);
@@ -39,7 +47,7 @@ export class TransactionQueryService {
 
     async getTransactions(
         userId: string,
-        source: TransactionSource,
+        source: TransactionCategory,
         page?: number,
         size?: number,
         search?: string

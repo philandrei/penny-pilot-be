@@ -9,21 +9,21 @@ export class ExpenseRequest {
         example: 'test description',
     })
     @IsString()
-    description: string;
+    description!: string;
 
     @Expose()
     @ApiProperty({
         example: '500.00',
     })
     @IsString()
-    amount: string;
+    amount!: string;
 
     @Expose()
     @ApiProperty({
         example: '02-20-2026',
     })
     @IsString()
-    date: string;
+    date!: string;
 
     @Expose()
     @ApiProperty({
@@ -38,12 +38,12 @@ export class ExpenseRequest {
         example: null,
     })
     @IsUUID()
-    categoryId: string;
+    categoryId!: string;
 
     @Expose()
     @ApiProperty({
         example: 'b672bc62-2f97-4e24-8f67-cb6354a825a9',
     })
     @IsUUID()
-    accountId: string;
+    accountId!: string;
 }
